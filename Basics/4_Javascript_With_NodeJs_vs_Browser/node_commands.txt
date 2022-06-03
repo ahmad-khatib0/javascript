@@ -1,0 +1,89 @@
+--run node file : node fileName.js
+
+--there is second method called node REPL : inside the same dir run only : node
+we can use this to execute one off javascript statements. This is just about identical
+to the console that we've been making use of inside the browser
+so you can to say for example : const y = 4 ; y => 4 and so on ...
+
+-- ctrl + c to stop the node
+
+--which node : that will print out where the node executable lives on my machine.
+
+-- npm link ; This is essentially going to take our current project and make it available to
+everywhere or every directory on our machine. So it essentially going to take our project
+make it globally available everywhere else.
+
+-- when we assign a value to module.export that makes that value available
+inside of other files inside of our project
+
+
+-- module.exports = 'hi' (this file called for example myScript.js )
+const message = require ('./myScript.js') :
+reach out to my script J.S. bind whatever was assigned to
+module dot exports and that is going to be he result of the entire require statement
+
+
+-- we can reference all the arguments that repassed to a function by just declaring
+the special variable arguments. console.log(arguments) // you will get info
+or object contain :exports , require , module , __filename , __dirname
+
+
+
+-- when we require in a file and we run that file and get some exports We are simultaneously
+going to update something called the require cash the required cash is a object that
+stores the results of requiring in a file. ,, if we const message = require ('./myScript.js')
+this going to store in some of for example key and value . so inside that cache
+myScript.js : hi ; (if we stored hi inside that file for example)
+the idea here we only ever execute every file one single time whatever we export
+from that file that one single time is what we get. Forever.
+for example if we repeat that exports again down in somewhere in app.js => require(./myScript.js)
+=> this not going to cause the my script. myScript.js file to be executed again.
+Instead node is going to take a look at the required cash that's going to see that we've already
+required in that file called my script. So instead of executing that file it's going to take
+a little shortcut. It's going to take a look at whatever had been exported previously and just give us that value
+directly.
+.. for example : require (./myScript.js) ; console.log(require.cache) => you'll see a big object
+contains the whole bunch of all of that requested in file
+in myScript :
+let counter = 0;
+module.exports = {
+incrementCounter() {
+counter = counter + 1;
+},
+getCounter() {
+return counter;
+},
+};
+
+in app.js :
+const counterObject = require("./myScript.js");
+console.log(counterObject.getCounter()); => 0
+counterObject.incrementCounter();
+console.log(counterObject.getCounter()); => 1
+
+const newCounterObject = require("./myScript.js");
+console.log(newCounterObject.getCounter());
+what do you expect? 0 , why ? because its
+declared in the myScript file . no its not . it'll be 1 ! . why ? because we get this value
+form the first require ( const = counterObject = require('./myScript.js'))
+
+-- debugging with node
+
+: 1 by : node inspect fileName.js
+the rebel commands is essentially going to start up an execution environment where we can reference
+the different variables inside of our program. ,, there are also another commands in 69.png
+repl and then varName this to access the variables in order to work with them
+
+2 : node--inspect-brk filename.js and then you need to go to chrome then 'chrome://inspect'
+what you'll see is a interface for connecting to that running node instance ;; hit inspect
+if you didn't get the file redo the process , in this point you will debug normally inside
+the chrome dive tool . if you didn't see console at the start , just hit ESC . this method
+is more easy then first one
+
+3 : node--inspect filename.js and then you need to go to chrome then 'chrome://inspect'
+its the same as the previous method but the only difference if you're running a very
+small script that's going to complete execution in a matter of like milliseconds which is
+the case with our current program we're always going to be using dash dash bkr
+
+-- passing callbacks function this is an extremely common pattern that we're going to see
+again . and again and again and again
