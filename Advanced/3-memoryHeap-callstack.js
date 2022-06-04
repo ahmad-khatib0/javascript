@@ -27,6 +27,22 @@ function stack() {
 }
 // this will cause a stack size to run out
 
+const list = new Array(60000).join('1.1').split('.');
+function removeItemsFromList() {
+    var item = list.pop();
+    if (item) removeItemsFromList();
+};
+removeItemsFromList();
+//this causing stack overflow, to fix it, => 
+
+const listFix = new Array(60000).join('1.1').split('.');
+function removeItemsFromList() {
+    var item = list.pop();
+    if (item) setTimeout(removeItemsFromList, 0);
+};
+removeItemsFromList();
+// send it to the web api (using setTimeout) to prevent 
+// add these 60000 items immediately to the call stack and execute them at once 
 
 // memory leak 
 let array = [];
