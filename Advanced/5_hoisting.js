@@ -1,3 +1,6 @@
+// variables are partially hoisted, so they treated as: var variableName = undefined  . on hoisting 
+//while functions are fully hoisted during the creation phase  
+
 console.log(teddy); //undefined
 console.log(sing());//ohh la la
 console.log(sing());//undefined
@@ -7,12 +10,14 @@ var teddy = "bear";
 function sing() { console.log('ohh la la') }
 var a = function () { console.log("will be undefined"); }
 
-// what happens is during the creation, js will look and for teddy its going to hoist it
-//. it will left up the var name and will assign it an undefined, so this var teddy = 'bear'
-// becomes this => var teddy = undefined on line 2,, while functions are fully hoisted ,
-//so because of this it log it successfully on line 3
-// let and const aren't hoisted at all , and surrounding sing function with
-// parentheses will make the compiler not to see this is a function so on,
+    // what happens is during the creation, js will look and for teddy its going to hoist it
+    //. it will left up the var name and will assign it an undefined, so this var teddy = 'bear'
+    // becomes this => var teddy = undefined on line 2,, while functions are fully hoisted ,
+    //so because of this it log it successfully on line 3
+    // let and const aren't hoisted at all , and surrounding sing function with
+    // parentheses will make the compiler not to see this is a function so on,
+    (function sing() { console.log('ohh la la') })//so because of the parentheses, when you call this 
+///it will be not defined because the compiler doesn't see the function keyword to be hoisted 
 
 
 b();
