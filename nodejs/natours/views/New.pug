@@ -1,0 +1,74 @@
+doctype html 
+html 
+	head 
+		title Natours | #{variable}
+		//-this #{variable} is templete strirng
+		link(rel="stylesheet", href="css/style.css")
+	body 
+		//- this comment won't be shown in inspict element
+		// this comment will be  shown in inspictor element 
+
+		h2= variable.toUpperCase() 
+		p this h2 above is called buffered code 
+
+
+
+		- const x = 7
+		p this const is called unffered , , unbuffered code is code that 
+		p is not going to add anything to the output.
+		h2= 2 * x  
+
+
+		li: a(href='#') Contact
+		//- p this li and a tags is = <li> <a> </a> </li>  in html 
+
+
+		.footer__logo
+		//- this above is div with class of footer_logo , to add another class concant it with dot     
+
+
+		img.card__picture-img(src=`/img/tours/${tour.imageCover}`, alt=`${tour.name}`)
+
+
+		span.card__footer-value= tour.ratingsAverage
+		| 
+		p this pipline above and there is empty spice beside it , is to create space between spans 
+		span.card__footer-text= `rating (${tour.ratingsQuantity})`
+
+
+		mixin overviewBox(label, text, icon)
+		  .overview-box__detail
+		    svg.overview-box__icon
+			  	use(xlink:href=`/img/icons.svg#icon-${icon}`)
+			  span.overview-box__label= label
+			  span.overview-box__text= text
+
+
+		- const date = tour.startDates[0].toLocaleString('en-us', {month: 'long', year: 'numeric'})
+		+overviewBox('Next date', date, 'calendar')
+		+overviewBox('Difficulty', tour.difficulty, 'trending-up')
+		+overviewBox('Participants', `${tour.maxGroupSize} people`, 'user')
+		+overviewBox('Rating', `${tour.ratingsAverage} / 5`, 'star')
+
+
+		- if (guide.role === 'lead-guide')
+			span.overview-box__label Lead guide
+
+
+		each img, i in tour.images
+      .picture-box
+        img.picture-box__img(src=`/img/tours/${img}`, alt=`The Park Camper Tour ${i + 1}`, class=`picture-box__img--${i + 1}`)
+
+
+    .reviews__rating
+      each star in [1, 2, 3, 4, 5]
+        svg.reviews__star(class=`reviews__star--${review.rating >= star ? 'active' : 'inactive'}`)
+          use(xlink:href='/img/icons.svg#icon-star')
+
+
+    
+    section.section-map
+      #map(data-locations=`${JSON.stringify(tour.locations)}`)
+      p this is a div with id of map , this data is keyword , and locations is just a name 
+      p so for example in another file (js) we can to get this div like so : 
+    const locations = JSON.parse(document.getElementById('map').dataset.locations)
