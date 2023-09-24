@@ -1,4 +1,4 @@
--- Higher-order components (HOC): 
+j- Higher-order components (HOC): 
     are an advanced technique in React for reusing component logic. Meaning a 
     higher-order component is a function that takes a component and returns a new component
   
@@ -17,3 +17,5 @@
 -- Proxy Pattern    :  Share a single global instance throughout our application
 
 -- Provider Pattern :  Make data available to multiple child components
+
+-- Prototype Pattern:  Share properties among many objects of the same type
