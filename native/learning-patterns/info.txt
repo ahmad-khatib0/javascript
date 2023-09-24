@@ -12,13 +12,15 @@ j- Higher-order components (HOC):
 
 
 
--- Singleton Pattern:  Share a single global instance throughout our application
+-- Singleton Pattern    :  Share a single global instance throughout our application
 
--- Proxy Pattern    :  Share a single global instance throughout our application
+-- Proxy Pattern        :  Share a single global instance throughout our application
 
--- Provider Pattern :  Make data available to multiple child components
+-- Provider Pattern     :  Make data available to multiple child components
 
--- Prototype Pattern:  Share properties among many objects of the same type
+-- Prototype Pattern    :  Share properties among many objects of the same type
 
 -- Container/ Presentational Pattern: 
    Enforce separation of concerns by separating the view from the application logic
+
+-- Observer Pattern     :  Use observables to notify subscribers when an event occurs
