@@ -19,3 +19,6 @@ j- Higher-order components (HOC):
 -- Provider Pattern :  Make data available to multiple child components
 
 -- Prototype Pattern:  Share properties among many objects of the same type
+
+-- Container/ Presentational Pattern: 
+   Enforce separation of concerns by separating the view from the application logic
