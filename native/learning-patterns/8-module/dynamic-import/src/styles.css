@@ -1,0 +1,23 @@
+body {
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  background-color: #171717;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+button {
+  border: none;
+  outline: none;
+  padding: 1rem;
+  font-size: 1rem;
+  color: white;
+  border-radius: 15px;
+  font-family: "Avenir Next";
+  background: -webkit-linear-gradient(to right, #ff6a00, #ee0979);
+  background: linear-gradient(to right, #ff6a00, #ee0979);
+  cursor: pointer;
+}

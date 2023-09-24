@@ -24,3 +24,5 @@ j- Higher-order components (HOC):
    Enforce separation of concerns by separating the view from the application logic
 
 -- Observer Pattern     :  Use observables to notify subscribers when an event occurs
+
+-- Module Pattern       :  Split up your code into smaller, reusable pieces
