@@ -8,3 +8,12 @@
     a way to share these types of data between components without having to explicitly pass a 
     prop through every level of hierarchy. Meaning with context, we can avoid passing props 
     through intermediate elements.
+
+
+
+
+-- Singleton Pattern:  Share a single global instance throughout our application
+
+-- Proxy Pattern    :  Share a single global instance throughout our application
+
+-- Provider Pattern :  Make data available to multiple child components
