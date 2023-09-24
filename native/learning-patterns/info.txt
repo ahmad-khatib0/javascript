@@ -1,0 +1,10 @@
+-- Higher-order components (HOC): 
+    are an advanced technique in React for reusing component logic. Meaning a 
+    higher-order component is a function that takes a component and returns a new component
+  
+-- Context
+    In a typical React app, data is passed down via props, but this can be cumbersome for some 
+    types of props that are required by many components within an application. Context provides 
+    a way to share these types of data between components without having to explicitly pass a 
+    prop through every level of hierarchy. Meaning with context, we can avoid passing props 
+    through intermediate elements.
