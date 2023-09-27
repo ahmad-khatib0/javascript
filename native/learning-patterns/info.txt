@@ -26,3 +26,5 @@ j- Higher-order components (HOC):
 -- Observer Pattern     :  Use observables to notify subscribers when an event occurs
 
 -- Module Pattern       :  Split up your code into smaller, reusable pieces
+
+-- Mixin Pattern        :  Add functionality to objects or classes without inheritance
