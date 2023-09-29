@@ -1,0 +1,56 @@
+html,
+body {
+  margin: 0px;
+  background-color: #1e2027;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-family: "Avenir Next";
+}
+
+h3 {
+  font-size: 17px;
+  font-family: "Avenir", sans-serif;
+  color: #fff;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-row {
+  position: relative;
+  margin-top: -10px;
+}
+
+input {
+  outline: none;
+  padding: 1em 2em;
+  width: 200px;
+  border-radius: 15px;
+  box-shadow: none;
+  border: 2px solid pink;
+  font-family: "Avenir Next";
+  font-size: 14px;
+}
+
+button {
+  border: none;
+  outline: none;
+  padding: 0.2rem 0.5rem;
+  font-size: 14px;
+  color: white;
+  border-radius: 5px;
+
+  font-family: "Avenir Next";
+  background: -webkit-linear-gradient(to right, #ff6a00, #ee0979);
+  background: linear-gradient(to right, #ff6a00, #ee0979);
+  cursor: pointer;
+  margin-left: -60px;
+}
