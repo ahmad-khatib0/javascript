@@ -33,3 +33,5 @@ j- Higher-order components (HOC):
    Use a central mediator object to handle communication between components
 
 -- Render Props Pattern :  Pass JSX elements to components through props 
+
+-- Hooks Pattern        :  Use functions to reuse stateful logic among multiple components throughout the app
