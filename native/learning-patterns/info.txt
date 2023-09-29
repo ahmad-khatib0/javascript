@@ -28,3 +28,6 @@ j- Higher-order components (HOC):
 -- Module Pattern       :  Split up your code into smaller, reusable pieces
 
 -- Mixin Pattern        :  Add functionality to objects or classes without inheritance
+
+-- Mediator/ Middleware Pattern    : 
+   Use a central mediator object to handle communication between components
