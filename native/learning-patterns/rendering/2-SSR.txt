@@ -1,0 +1,55 @@
+
+ ╒══════════════════════════════════════════════════════════════════════════╕
+
+  Server-side Rendering                                                    
+     Generate HTML to be rendered on the server in response to a user request 
+
+ └──────────────────────────────────────────────────────────────────────────┘
+
+The connect and fetch operations are handled on the server. HTML required
+  to format the content is also generated on the server. Thus, with SSR we can
+  avoid making additional round trips for data fetching and templating. As such,
+  rendering code is not required on the client and the JavaScript corresponding
+  to this need not be sent to the client.
+
+
+SSR - Pros
+
+1- Lesser JavaScript leads to quicker FCP and TTI
+    users will not be left waiting for all the screen elements to appear and for it to become interactive.
+
+2- Provides additional budget for client-side JavaScript
+    Development teams are required to work with a JS budget that limits the
+    amount of JS on the page to achieve the desired performance. 
+
+3- SEO enabled
+    Search engine crawlers are easily able to crawl the content of an SSR application 
+
+
+SSR - Cons 
+
+1- Slow TTFB
+    Since all processing takes place on the server, the response from the server
+    may be delayed in case of one or more of the following scenarios
+    • Multiple simultaneous users causing excess load on the server.
+    • Slow network
+    • Server code not optimized.
+
+2- Full page reloads required for some interactions
+   
+
+
+React for the Server
+  React can be rendered isomorphically, which means that it can function both on the browser as well 
+  as other platforms like the server. Thus, UI elements may be rendered on the server using React.
+
+  The ipage.js le on the server can have the code:
+  app.get('/' , (req , res ) => { 
+      const app  = ReactDOMServer.RenderToString(<App />)
+  })
+
+  The constant App can now be used to generate the HTML to be rendered. The ipage.js 
+  on the client side will have the following to ensure that the element App is hydrated: 
+  ReactDOM.hydrate(<App /> ,  document.getElementById('root'))
+
+
