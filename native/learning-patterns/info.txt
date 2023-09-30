@@ -35,3 +35,7 @@ j- Higher-order components (HOC):
 -- Render Props Pattern :  Pass JSX elements to components through props 
 
 -- Hooks Pattern        :  Use functions to reuse stateful logic among multiple components throughout the app
+
+-- HOC Pattern          :  Pass reusable logic down as props to components throughout your application
+
+
