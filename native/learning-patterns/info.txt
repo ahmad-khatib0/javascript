@@ -44,3 +44,6 @@ j- Higher-order components (HOC):
 
 -- Compound Pattern     :  Create multiple components that work together to perform a single task
 
+-- Command Pattern      :  Decouple methods that execute tasks by sending commands to a commander
+
+
