@@ -40,4 +40,4 @@ j- Higher-order components (HOC):
 
 -- Flyweight Pattern    :  Reuse existing instances when working with identical objects
 
-
+-- Factory Pattern      :  Use a factory function in order to create objects
