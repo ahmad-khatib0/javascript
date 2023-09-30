@@ -1,0 +1,85 @@
+ ╒═════╕
+
+  CSR 
+
+ └─────┘
+
+ ╒════════════════════════════════════════════╕
+
+  Client-side Rendering                      
+    Render your application's UI on the client 
+
+ └────────────────────────────────────────────┘
+
+
+• A large JavaScript bundle could increase how long a page takes to reach
+  FCP and LCP. The user will be required to wait for some time to go from a
+  mostly blank page to a page with content loaded.
+
+• Larger JavaScript bundles also affect TTI and TBT as the page can only
+  become interactive once the minimal required JavaScript is loaded and events are wired.
+
+• The time required for the rst byte of content to reach the browser (TTFB)
+  is dependent on the time taken by the server to process the request.
+
+• Techniques such as preload, prefetch and script attributes can affect the
+  above parameters as different browsers interpret them differently. It is helpful to understand 
+  the loading and execution priorities assigned by the browser for such attributes before using them.
+
+
+ Next.js can be used to implement all of the following patterns.
+• SSR
+• Static SSR (experimental ag)
+• SSR with Rehydration
+• CSR with Prerendering also known as Automatic Static Optimization
+• Full CSR
+
+
+Pre-rendering
+  By default, Next.js generates the HTML for each page in advance and not on
+  the client-side. This process is called pre-rendering. Next.js ensures that
+  JavaScript code required to make the page fully interactive gets associated
+  with the generated HTML. This JavaScript code runs once the page loads. At
+  this point, React JS works in a Shadow DOM to ensure that the rendered
+  content matches with what the React application would render without actually
+  manipulating it. This process is called hydration.
+
+
+Next.js supports data fetching with both SSR and Static generation. Following
+functions in the Next.js framework make this possible:
+• getStaticProps
+  Used with Static generation to render data
+• getStaticPaths
+  Used with Static generation to render dynamic routes
+• getServerSideProps
+  Applicable to SSR
+
+
+ Next.js supports two types of code splitting: 
+ 
+• Route-based: This is implemented by default in Next.js. When a user
+    visits a route, Next.js only sends the code needed for the initial route.
+    The other chunks are downloaded as required when the user navigates
+    around the application. This limits the amount of code that needs to be
+    parsed and compiled at once thereby improving the page load times.
+    
+• Component-based: This type of code splitting allows splitting large
+    components into separate chunks that can be lazy-loaded when
+    required. Next.js supports component-based code splitting
+    through dynamic import(). This allows you to import JavaScript modules
+    (including React components) dynamically and load each import as a separate chunk.
+
+
+Improving CSR performance: 
+ 1. Budgeting JavaScript: Ensure that you have a reasonably tight JavaScript budget for your initial page loads.
+ 2. Preloading: This technique can be used to preload critical resources that
+    would be required by the page, earlier in the page lifecycle. Critical resources may include 
+    JavaScript which can be preloaded by including the following directive in the <head> section of the HTML
+     ╒═════════════════════════════════════════════════════╕
+       <link rel="preload" as="script" href="critical.js"> 
+     └─────────────────────────────────────────────────────┘
+    This informs the browser to start loading the critical.js file before the page rendering mechanism starts. 
+ 3. Lazy loading
+ 4. Code Splitting: To avoid a large bundle of JavaScript code,
+ 5. Application shell caching with service workers: This technique involves caching the 
+    application shell which is the minimal HTML, CSS, and JavaScript powering a user interface
