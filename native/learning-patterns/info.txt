@@ -38,4 +38,6 @@ j- Higher-order components (HOC):
 
 -- HOC Pattern          :  Pass reusable logic down as props to components throughout your application
 
+-- Flyweight Pattern    :  Reuse existing instances when working with identical objects
+
 
