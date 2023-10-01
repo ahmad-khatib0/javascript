@@ -1,0 +1,60 @@
+
+
+Streaming Server-Side Rendering
+
+  Generate HTML to be rendered on the server in response to a user request
+
+
+We can reduce the TTI while still server rendering our application by streaming server rendering 
+  the contents of our application. Instead of generating one large HTML le containing the necessary 
+  markup for the current navigation, we can split it up into smaller chunks! Node streams allow
+  us to data into the response object, which means that we can continuously send data down to the 
+  client. The moment the client receives the chunks of data, it can start rendering the contents.
+  React's built-in renderToNodeStream makes it possible for us to send our application in smaller chunks.
+
+
+Like progressive hydration, streaming is another rendering mechanism that
+  can be used to improve SSR performance. As the name suggests, streaming
+  implies chunks of HTML are streamed from the node server to the client as
+  they are generated. As the client starts receiving "bytes" of HTML earlier even
+  for large pages, the TTFB is reduced and relatively constant. All major
+  browsers start parsing and rendering streamed content or the partial response
+  earlier. As the rendering is progressive, it results in a fast FP and FCP.
+
+
+•ReactDOMServer.renderToNodeStream(element): The output
+  HTML from this function is the same as ReactDOMServer.renderToNodeStream(element) but is in a
+  Node.js readablestream format instead of a string. The function will only
+  work on the server to render HTML as a stream. The client receiving this
+  stream can subsequently call ReactDOM.hydrate() to hydrate the page and make it interactive
+
+•ReactDOMServer.renderToStaticNodeStream(element): This corresponds
+  to ReactDOMServer.renderToStaticNodeStream(element). The HTML output is the same but in a stream format.
+  It can be used for rendering static, non-interactive pages on the server and then streaming them to the client.
+
+
+1. Performance Improvement: As the first byte reaches the client soon after
+   rendering starts on the server, the TTFB is better than that for SSR. it is also more consistent 
+   irrespective of the page size. Since the client can start parsing HTML as soon as it receives it,
+   the FP and FCP are also lower.
+   
+2. Handling of Backpressure: Streaming responds well to network
+   backpressure or congestion and can result in responsive websites even under challenging conditions.
+   
+3. Supports SEO: The streamed response can be read by search engine
+   crawlers, thus allowing for SEO on the website.
+
+
+-- It is important to note that streaming implementation is not a simple nd-
+    replace from renderToString to renderToNodeStream(). There are
+    cases where the code that works with SSR may not work as-is with streaming.
+    Following are some examples where migration may not be easy.
+    
+1. Frameworks that use the server-render-pass to generate markup that
+    needs to be added to the document before the SSR-ed chunk. Examples are frameworks that dynamically 
+    determine which CSS to add to the page in a preceding <style> tag, or frameworks that add 
+    elements to the document <head> while rendering. 
+
+2. Code, where renderToStaticMarkup is used to generate the page template and renderToString calls 
+    are embedded to generate dynamic content. Since the string corresponding to the component 
+    is expected in these cases, it cannot be replaced by a stream.
