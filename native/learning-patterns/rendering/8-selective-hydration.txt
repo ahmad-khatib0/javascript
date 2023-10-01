@@ -1,0 +1,29 @@
+
+
+Before the server-rendered HTML tree is able to get sent to the client, all
+  components need to be ready. This means that components that may rely on
+  an external API call or any process that could cause some delays, might end
+  up blocking smaller components from being rendered quickly.
+
+Besides a slower tree generation, another issue is the fact that React only
+  hydrates the tree once. This means that before React is able to hydrate any of the components, 
+  it needs to have fetched the javascript for all of the components before it’s able to hydrate any 
+  of them. this means that smaller components (with smaller bundles) have to wait for the larger
+  components’s code to be fetched and loaded, until react is able to hydrate anything on your website.
+  during this time, the website remained non-interactive.
+
+React 18 solves these problems by allowing us to combine streaming server-side rendering with a 
+  new approach to hydration: Selective Hydration! Instead of using the renderToString method we can
+  now stream render HTML using the new pipeToNodeStream method on the server.
+
+Selective hydration makes it possible to already hydrate the components that
+  were sent to the client, even before The component has been sent!
+
+
+Streaming rendering allows you to start streaming components as soon as they're ready, without risking 
+  a slower FCP and TTI due to components that might take longer to generate on the server.
+Components can be hydrated as soon as they're streamed to the client, since
+  we no longer have to wait for all JavaScript to load to start hydrating and can
+  start interacting with the app before all components have been hydrated.
+
+
