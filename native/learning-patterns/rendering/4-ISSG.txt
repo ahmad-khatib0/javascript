@@ -1,0 +1,40 @@
+
+Incremental Static Generation
+    Update static content after you have built your site
+
+
+Think of a growing blog with multiple posts. You wouldn't possibly want to
+  rebuild and redeploy the site just because you want to correct a typo in one of the posts. Similarly, 
+  one new blog post should also not require a rebuild for all the existing pages. Thus, SSG on its own 
+  is not enough for rendering large websites or applications.
+
+The Incremental Static Generation (iSSG) pattern was introduced as an
+  upgrade to SSG, to help solve the dynamic data problem and help static sites scale for large amounts 
+  of frequently changing data. iSSG allows you to update existing pages and add new ones by pre-rendering 
+  a subset of pages in the background even while fresh requests for pages are coming in.
+
+iSSG works on two fronts to incrementally introduce updates to an existing static site after it has been built:
+  1. Allows addition of new pages
+  2. Allows updates to existing pages also known as Incremental Static “Re"generation
+
+
+
+iSSG Advantages
+iSSG provides all the advantages of SSG and then some more. The following list covers them in detail: 
+  
+1. Dynamic data: The first advantage is obviously why iSSG was envisioned.
+   Its ability to support dynamic data without a need to rebuild the site.
+   
+2. Speed: iSSG is at least as fast as SSG because data retrieval and rendering still takes place in 
+   the background. There is little processing required on the client or the server.
+   
+3. Availability: A fairly recent version of any page will always be available online for users 
+   to access. Even if the regeneration fails in the background, the old version remains unaltered.
+   
+4. Consistent: As the regeneration takes place on the server one page at a time, the load on the database 
+   and the backend is low and performance is consistent. As a result, there are no spikes in latency.
+   
+5. Ease of Distribution: Just like SSG sites, iSSG sites can also be
+   distributed through a network of CDN's used to serve pre-rendered web pages.
+
+
