@@ -1,0 +1,38 @@
+
+
+Chrome's priorities for loading different resources:
+
+• CSS and Fonts are loaded with the highest priority. This should help us
+    prioritize critical CSS and fonts.
+
+• Scripts get different priorities based on where they are in the document and whether they are async, 
+  defer, or blocking. Blocking scripts requested before the rst image ( or an image early in the document)
+  are given higher priority over blocking scripts requested after the rst image is fetched.
+  Async/defer/injected scripts, regardless of where they are in the document, have the lowest priority. 
+  Thus we can prioritize different scripts by using the appropriate attributes for async and defer.
+
+• Images that are visible and in the viewport have a higher priority (Net:
+  Medium) than those that are not in the viewport (Net: Lowest). This helps
+  us prioritize ABT images over BTF images.
+
+
+What is the Ideal Loading Sequence? :
+1. We recommend avoiding preload as much as possible because it forces
+    manual preload on every preceding resource and also causes manual curation of ordering. 
+    Preload should be especially avoided on fonts, as it is tricky to detect critical fonts.
+
+2. Font-CSS should be ideally inlined. Fonts from another origin should be fetched using preconnect.
+
+3. Preconnect is recommended for all resources from another origin. This will
+   ensure that a connection is established in advance for downloading these resources.
+
+4. Non-critical CSS should be fetched before user interaction begins (FID).
+   This would avoid styling problems due to subsequent rendering of such CSS.
+
+5. Start fetching first-party JS before ABT images on the network. It will take
+   some time to download and parse the JS.
+   
+6. Parsing of the HTML on the main thread and download of ABT images can
+   continue in parallel while 1P JS is parsed.
+
+
