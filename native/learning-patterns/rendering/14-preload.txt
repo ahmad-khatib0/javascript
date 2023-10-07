@@ -1,0 +1,31 @@
+
+
+Preload
+  Inform the browser of critical resources before they are discovered
+
+
+Preload (<link rel="preload">) is a browser optimization that allows
+  critical resources (that may be discovered late) to be to be requested earlier.
+
+
+If you are trying to optimize the loading of rst-party JavaScript, you can also consider using 
+  <script defer> in the document <head> vs. <body> to help with early discover of these resources.
+
+A preloaded XComponent could be loaded in parallel with the initial bundle. Unlike prefetch, where 
+  the browser still had a say in whether it think it's got a good enough internet connection and bandwidth 
+  to actually prefetch the resource, a preloaded resource will get preloaded no matter what.
+
+As we're loading assets with smarter ordering, the initial loading time may increase signi cantly
+  depending on your users device and internet connection. Only preload the
+  resources that have to be visible ~1 second after the initial render.
+
+Use preload sparingly and always measure its impact in production. If the preload for your image 
+  is earlier in the document than it is, this can help browsers discover it 
+  (and order relative to other resources). When used incorrectly, preloading can cause your image to delay 
+  First Contentful Paint (e.g CSS, Fonts) - the opposite of what you want. Also note that for such
+  reprioritization efforts to be effective, it also depends on servers prioritizing requests correctly.
+
+You may also nd <link rel="preload"> to be helpful for cases where
+  you need to fetch scripts without executing them.
+
+
