@@ -1,0 +1,16 @@
+
+
+The different ways to load resources are, at a high-level:
+  • Eager: load resource right away (the normal way of loading scripts)
+  • Lazy (Route-based): load when a user navigates to a route or component
+  • Lazy (On interaction): load when the user clicks UI (e.g Show Chat)
+  • Lazy (In viewport): load when the user scrolls towards the component
+  • Prefetch: load prior to needed, but after critical resources are loaded
+  • Preload: eagerly, with a greater level of urgency
+
+
+"Fake" loading third-party UI with a facade:
+  You might be importing a third-party script and have less control over what it renders or when it 
+  loads code. One option for implementing load-on-interaction is straight-forward: use a facade. 
+  A facade is a simple "preview" or "placeholder" for a more costly component where you simulate 
+  the basic experience, such as with an image or screenshot. 

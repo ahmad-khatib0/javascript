@@ -1,0 +1,49 @@
+
+PRPL Pattern
+  Optimize initial load through precaching, lazy loading, and minimizing roundtrips
+
+Making our applications globally accessible can be a challenge! We have to make sure the application 
+  is performant on low-end devices and in regions with a poor internet connectivity. In order to make 
+  sure our application can load as efficiently as possible in dif cult conditions, we can use the PRPL pattern.
+
+The PRPL pattern focuses on four main performance considerations:
+• Pushing critical resources ef ciently, which minimizes the amount of
+  roundtrips to the server and reducing the loading time.
+• Rendering the initial route soon as possible to improve the user experience
+• Pre-caching assets in the background for frequently visited routes to minimize the amount of 
+  requests to the server and enable a better of ine experience
+• Lazily loading routes or assets that aren’t requested as frequently
+
+
+Whereas HTTP/1.1 used a newline delimited plaintext protocol in the requests and responses, HTTP/2 
+  splits the requests and responses up in smaller pieces called frames. An HTTP request that contains 
+  headers and a body eld gets split into at least two frames: a headers frame, and a data frame!
+  HTTP/1.1 had a maximum amount of 6 TCP connections between the client and the server. Before a 
+  new request can get sent over the same TCP connection, the previous request has to be resolved! 
+  If the previous request is taking a long time to resolve, this request is blocking the other 
+  requests from being sent. This common issue is called head of line blocking, and can
+  increase the loading time of certain resources!
+
+HTTP/2 also introduced a more optimized way of fetching data, called server push. Instead of 
+  having to explicitly ask for resources each time by sending an HTTP request, the server can send 
+  the additional resources automatically, by “pushing” these resources.
+  After the client has received the additional resources, the resources will get
+  stored in browser cache. When the resources get discovered while parsing
+  the entry le, the browser can quickly get the resources from cache instead of
+  having to make an HTTP request to the server!
+
+The PRPL pattern focuses on optimizing the initial load. No other resources get loaded before 
+  the initial route has loaded and rendered completely! We can achieve this by code-splitting our 
+  application into small, performant bundles. Those bundles should make it possible for the users 
+  to only load the resources they need, when they need it, while also maximizing cachability! Caching 
+  larger bundles can be an issue. It can happen that multiple bundles share the same resources.
+
+The PRPL pattern often uses an app shell as its main entry point, which is a
+  minimal le that contains most of the application’s logic and is shared between routes! 
+  It also contains the application’s router, which can dynamically request the necessary resources.
+
+
+The PRPL pattern makes sure that no other resources get requested or rendered before the initial 
+  route is visible on the user’s device. Once the initial route has been loaded successfully, a server worker 
+  can get installed in order to fetch the resources for the other frequently visited routes in the background
+
