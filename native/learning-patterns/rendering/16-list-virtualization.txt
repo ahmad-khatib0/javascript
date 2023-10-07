@@ -1,0 +1,25 @@
+
+ ╒════════════════════════════════════════════════════╕
+  List Virtualization                                
+
+    Optimize list performance with list virtualization 
+ ╘════════════════════════════════════════════════════╛
+ 
+This is the idea of rendering only visible rows of content in a dynamic list instead of
+  the entire list. The rows rendered are only a small subset of the full list with what is 
+  visible (the window) moving as the user scrolls. This can improve rendering performance
+  
+How does list virtualization work?
+
+"Virtualizing" a list of items involves maintaining a window and moving that
+ window around your list. Windowing in react-virtualized works by:
+ 
+  • Having a small container DOM element (e.g <ul>) with relative positioning (window)
+  • Having a big DOM element for scrolling
+  • Absolutely positioning children inside the container, setting their styles for top, left, width and height.
+
+
+Some modern browsers now support CSS content-visibility. content-visibility:auto allows you to 
+  skip rendering & painting offscreen content until needed. If you have a long HTML document 
+  with costly rendering, consider trying the property out.
+
