@@ -1,0 +1,6 @@
+ ╒═════════════════════════════════════════════════════════════════════════════════════════════╕
+   When the business domain leaks into its                                                     
+   container, you have to review whether you are implementing a micro-frontend or a component. 
+ ╘═════════════════════════════════════════════════════════════════════════════════════════════╛
+
+

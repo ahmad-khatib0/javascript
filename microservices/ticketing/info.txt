@@ -1,0 +1,14 @@
+app.set("trust proxy" , true)
+  The reason for this is that traffic is being proxied to our application through ingress.
+  Express is going to see the fact that stuff is being proxy and by default, Express is going to say,
+  Hey, wait, there's a proxy here.  I don't really trust this HTTPS connection.
+  Long story short, we are just adding in this little step right here to make sure that Express is aware
+  that it's behind a proxy of ingress-nginx, and to make sure that it should still trust traffic as
+  being secure, even though it's coming from that proxy.
+
+
+kubectl get services -n ingress-nginx  
+# get services in the ingress-nginx namespace 
+
+# temporarily forward a port to nats
+kubectl port-forward nats-depl-86896dd7f8-2f55z  4222:4222  

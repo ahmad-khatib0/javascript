@@ -1,0 +1,976 @@
+
+Usually, when we want to provide better indexing for an SPA, we tend to create a custom experience 
+  strictly for the crawler. For instance, Netflix lowers its geofencing mechanism when the user-agent 
+  requesting its web application is identified as a crawler rather than serving content similar to what a 
+  user would watch based on the country specified in the URL. This is a very handy mechanism, considering that 
+  the crawler’s engine is often based in a single location from which it indexes a website all over the world.
+
+Isomorphic Applications
+  Isomorphic or universal applications are web applications where the code between server and client is 
+  shared and can run in both contexts. It is particularly beneficial for the time to interaction,
+  A/B testing, and SEO. Thanks to the possibility of generating the page on the server side, 
+  we are in charge of optimizing our code for the key characteristics of our project.
+
+An SEO strategy can also be improved with isomorphic applications because
+  the page is rendered server side without the need for additional server requests. 
+  When served, it provides the crawler an HTML page with all the information inside 
+  ready to be indexed immediately without additional round trips to the server.
+
+
+
+
+Micro-Frontends Decisions Framework
+  Some architectural decisions will need to be made up front because they will direct future decisions, 
+  like how to define a micro-frontend, how to orchestrate the different views, how to compose the
+  final view for the user, and how micro-frontends will communicate and share data. These types of 
+  decisions are called the micro-frontends decisions framework. It is composed of four key areas:
+  1 - Defining what a micro-frontend is in your architecture
+  2 - Composing micro-frontends
+  3 - Routing micro-frontends
+  4 - Communicating between micro-frontends
+
+Define Micro-Frontends:
+  With the horizontal split, multiple micro-frontends will be on the same view. Multiple teams will be 
+  responsible for parts of the view and will need to coordinate their efforts. This approach provides 
+  greater flexibility considering we can even reuse some micro-frontends in different views, although it also
+  requires more discipline and governance for not ending up with hundreds of micro-frontends in the same project.
+
+  With the the vertical split scenario, each team is responsible for a business domain, like the 
+  authentication or the catalog experience. In this case, domain-driven design (DDD) comes to the 
+  rescue. It’s not often that we apply DDD principles on frontend architectures, but in this case, 
+  we have a good reason to explore it.
+
+DDD is an approach to software development that centers the development on programming a domain model 
+  that has a rich understanding of the processes and rules of a domain. Applying DDD for frontend 
+  is slightly different from what we can do on the backend. Certain concepts are definitely not applicable, 
+  although there are others that are fundamental for designing a successful micro-frontend architecture. 
+  For instance, Netflix’s core domain is video streaming; the subdomains within that core domain are 
+  the catalog, the sign-up functionality, and the video player.
+
+There are three subdomain types:
+
+Core subdomains
+  These are the main reasons an application should exist. Core subdomains should be treated as premium 
+  citizens in our organizations because they are the ones that deliver value above everything else. 
+  The video catalog would be a core subdomain for Netflix.
+  
+Supporting subdomains
+  These subdomains are related to the core ones but are not key differentiators. 
+  They could support the core subdomains but aren’t essential for delivering real value 
+  to users. One example would be the voting system on Netflix’s videos.
+
+Generic subdomains
+  These subdomains are used for completing the platform. Often companies decide to go with off-the-shelf 
+  software for them because they’re not strictly related to their domain. With Netflix, for instance, 
+  the payments management is not related to the core subdomain (the catalog), but it is a
+  key part of the platform because it has access to the authenticated section.
+
+
+
+TRANSCLUSION 
+  is the inclusion of part or all of an electronic document into one or more other documents by
+  hypertext reference. Transclusion is usually performed when the referencing document is displayed, 
+  and it is normally automatic and transparent to the end user. The result of transclusion is a single 
+  integrated document made of parts assembled dynamically from separate sources, possibly stored on 
+  different computers in disparate places. An example of transclusion is the placement of images in 
+  HTML. The server asks the client to load a resource at a particular location and insert it into 
+  a particular part of the DOM.
+
+Three different ways to compose a micro-frontends architecture:
+  Client-side composition
+  Edge-side composition
+  Server-side composition
+
+In the client-side composition case, where an application shell loads micro-frontends inside itself, 
+  the micro-frontends should have a JavaScript or HTML file as an entry point so the application shell 
+  can dynamically append the Document Object Model (DOM) nodes in the case of an HTML file or
+  initializing the JavaScript application with a JavaScript file.
+
+
+Edge-side composition
+  With edge-side composition, we assemble the view at the CDN level. Many CDN providers give us the 
+  option of using an XML-based markup language called Edge Side Includes (ESI). ESI is not a new 
+  language; it was proposed as a standard by Akamai and Oracle, among others, in 2001. ESI allows a
+  web infrastructure to be scaled in order to exploit the large number of points of presence around 
+  the world provided by a CDN network, compared to the limited amount of data center capacity on which 
+  most software is normally hosted. One drawback to ESI is that it’s not implemented in the same way by 
+  each CDN provider; therefore, a multi-CDN strategy, as well as porting our code from one provider 
+  to another, could result in a lot of refactors and potentially new logic to implement.
+
+Server-side composition
+  The last possibility we have is the server-side composition, which could happen at runtime or at 
+  compile time. In this case, the origin server is composing the view by retrieving all the different 
+  micro-frontends and assembling the final page. If the page is highly cacheable, the CDN will then serve 
+  it with a long time-to-live policy. However, if the page is personalized per user, serious consideration 
+  will be required regarding the scalability of the eventual solution, when there are many requests coming 
+  from different clients. When we decide to use server-side composition, we must deeply analyze the use 
+  cases we have in our application. If we decide to have a runtime composition, we must have a clear 
+  scalability strategy for our servers in order to avoid downtime for our users.
+
+
+
+Routing Micro-Frontends
+We can decide to route the page requests in the origin, on the edge, or at client side
+
+When we decide to compose micro-frontends at the origin, a server-side composition,
+we are forced to route the requests at origin since the entire application logic lives in the 
+application servers. However, we need to consider that scaling an infrastructure could be nontrivial, 
+especially when we have to manage burst traffic with many requests per second (RPS). Our servers need 
+to be able to keep up with all the requests and scale horizontally very rapidly. Each application server then
+must be able to retrieve the micro-frontends for the composing page to be served.
+
+When we decide to use edge-side composition in our architecture, the routing is based on the page URL, 
+and the CDN serves the page requested by assembling the micro-frontends via transclusion at edge level. 
+In this case, we won’t have much room for creating smart routing—something to remember when we pick 
+this architecture. 
+
+The final option is to use client-side routing. In this instance, we will load our micro-frontends 
+according to the user state, such as loading the authenticated area of the application when the user is 
+already authenticated or loading just a landing page if the user is accessing our application for the first time.
+
+
+
+
+
+
+
+Because a vertical split provides the closest developer experience to an SPA, and therefore 
+the tools, best practices, and patterns can be used for the development of a micro-frontend
+
+When vertical-split micro-frontends have to share information with other
+  micro-frontends, such as tokens or user preferences, we can use query strings
+  for volatile data, or web storages for tokens or user preferences, similar to
+  how the horizontal split ones do between different views.
+
+
+
+
+ ╒══════════════════════╕
+   ╒══════════════════╕ 
+     Horizontal Split     
+   ╘══════════════════╛ 
+ ╘══════════════════════╛
+ 
+  A horizontal split works well when a business subdomain should be presented across several views and 
+  therefore reusability of the subdomain becomes key for the project; when search engine optimization is a key
+  requirement of your project and you want to use a server-side rendering approach; when your frontend application 
+  requires tens if not hundreds of developers working together and you have to split more granular our subdomains; 
+  or when you have a multitenant project with customer customizations in specific parts of your software.
+
+While you can technically apply any routing to
+  any composition, it’s common to use the routing strategy associated with your chosen composition pattern.
+  If you choose a client-side composition, for example, most of the time, routing will happen at the 
+  client-side level. You might use computation logic at the edge (using Lambda@Edge in case of AWS or Workers 
+  in CloudFlare) to avoid polluting the application shell’s code with canary releases or to provide an optimized 
+  version of your web application to search engine crawlers leveraging the dynamic rendering capability.
+  On the other hand, an edge-side composition will have an HTML page associated with each view, so every time 
+  a user loads a new page, a new page will be composed in the CDN, which will retrieve multiple micro-frontends
+  to create that final view. Finally, with server-side routing, the application server will know which HTML 
+  template is associated with a specific route; routing and composition happen on the server side.
+
+
+Micro-Frontends Architecture Analysis: 
+
+Deployability
+  Reliability and ease of deploying a micro-frontend in an environment.
+  
+Modularity
+  Ease of adding or removing micro-frontends and ease of integrating with
+  shared components hosted by micro-frontends.
+
+Simplicity
+  Ease of being able to understand or do. If a piece of software is considered simple, 
+  it has likely been found to be easy to understand and to reason about.
+
+Testability
+  Degree to which a software artifact supports testing in a given test context. If the testability 
+  of the software artifact is high, then finding faults in the system by means of testing is easier.
+
+Performance
+  Indicator of how well a micro-frontend would meet the quality of user
+  experience described by web vitals, essential metrics for a healthy site.
+
+Developer experience
+  The experience developers are exposed to when they use your product, be it client 
+  libraries, SDKs, frameworks, open source code, tools, API, technology, or services.
+
+Scalability
+  The ability of a process, network, software, or organization to grow and manage increased demand.
+
+Coordination
+  Unification, integration, or synchronization of group members’ efforts in
+  order to provide unity of action in the pursuit of common goals.
+
+
+There are four techniques for composing micro-frontends on the client side:
+  ES modules
+   JavaScript modules can be used to split our applications into smaller files to be loaded at compile 
+   time or at runtime, fully implemented in modern browsers. This can be a solid mechanism for composing 
+   micro-frontends at runtime using standards. To implement an ES module, we simply define the module 
+   attribute in our script tag and the browser will interpret it as a module:
+
+  SystemJS
+   This module loader supports import maps specifications, which are not natively available inside the 
+   browser. This allows them to be used inside the SystemJS implementation, where the module loader library 
+   makes the implementation compatible with all the browsers. This is a handy solution when we want our 
+   micro-frontends to load at runtime, because it uses a syntax similar to import maps and allows SystemJS 
+   to take care of the browser’s API fragmentation.
+
+  Module Federation
+   This is a plug-in introduced in webpack 5 used for loading external modules, libraries, or even entire 
+   applications inside another one. The plug-in takes care of the undifferentiated heavy lifting needed for
+   composing micro-frontends, wrapping the micro-frontends’ scope and sharing dependencies between different 
+   micro-frontends or handling different versions of the same library without runtime errors. The developer 
+   experience and the implementation are so slick that it would seem like writing a normal SPA. Every 
+   micro-frontend is imported as a module and then implemented in the same way as a component of a UI framework. 
+   The abstraction made by this plug-in makes the entire composition challenge almost completely painless.
+
+  HTML parsing
+   When a micro-frontend has an entry point represented by an HTML page, we can use JavaScript for parsing 
+   the DOM elements and append the nodes needed inside the application shell’s DOM. At its simplest, an
+   HTML document is really just an XML document with its own defined schema. Given that, we can treat the 
+   micro-frontend as an XML document and append the relevant nodes inside the shell’s DOM using the DOMParser 
+   object. After parsing the micro-frontend DOM, we then append the DOM nodes using adoptNode or cloneNode methods.
+   However, using cloneNode or adoptNode doesn’t work with the script element, because the browser doesn’t evaluate 
+   the script element, so in this case we create a new one, passing the source file found in the micro-frontend’s
+   HTML page. Creating a new script element will trigger the browser to fully evaluate the JavaScript file 
+   associated with this element. In this way, you can even simplify the micro-frontend developer experience 
+   because your team will provide the final results knowing how the initial DOM will look. This technique 
+   is used by some frameworks, such as qiankun, which allows HTML documents to be micro-frontend entry points.
+
+
+
+
+Search Engine Optimization for vertical-split: 
+  Another option would be using dynamic rendering to provide an optimized version of your web application 
+  for all the crawlers trying to index your content. Google introduced dynamic rendering to allow you to 
+  redirect crawler requests to an optimized version of your website, usually prerendered, without 
+  penalizing the positioning of your website in the search engine results
+
+  There are a couple of solutions for serving a prerendered version of your application to a crawler. First, 
+  for the prerendering phase, you can create a customized version of your website that fetches the same data 
+  of the website your users will consume. For instance, you can create a server-side rendering
+  output stored in an objects storage that translates a template into static HTML
+  pages at compile time, maintaining the same user-facing URL structure. Amazon S3 is a good choice for this. 
+  You can also decide to server-side render at runtime, eliminating the need to store the static pages and serving
+  the crawlers a just-in-time version created ad hoc for them. Although this solution requires some effort to 
+  implement, it allows you the best customization and optimization for improving the final output to the crawler.
+ 
+  A second option would be using an open source solution like Puppeteer or
+  Rendertron to scrape the code from the website created for the users and then
+  deploy a web server that generates static pages regularly.
+
+  After generating the static version of your website, you need to know when the request is coming from a browser 
+  and when from a crawler. A basic implementation would be using a regular expression that identifies the 
+  crawler’s user-agents. A good Node.js library for that is crawler-user-agents. In this case, after identifying 
+  the user-agent header, the application server can respond with the correct implementation. This solution can be 
+  applied at the edge using technologies like AWS Lambda@Edge or Cloudflare Workers. In this case, CDNs of some 
+  cloud providers allow a computation layer after receiving a request. Because there are some constraints on 
+  the maximum execution time of these containers, the user-agent identification represents a good reason for using 
+  these edge technologies. Moreover, they can be used for additional logic , 
+  introducing canary releases or blue-green deployment, 
+
+
+With vertical-split architectures, you can decide either to bundle all the
+  shared libraries together or to bundle the libraries for each micro-frontend. The former can provide greater 
+  performance because the user downloads the bundle only once, but you’ll need to coordinate the libraries to 
+  update for every change across all the micro-frontends. While this may sound like an easy task, it can be more
+  complicated than you think when it happens regularly.Imagine you have a breaking change on a specific shared UI
+  framework; you can’t update the new version until all the micro-frontends have done extensive tests on the 
+  new framework version. So while we gain in performance in this scenario, we must first overcome some 
+  organizational challenges. The latter solution—maintaining every micro-frontend independently—reduces the 
+  communication overhead for coordinating the shared dependencies but might increase the content the user 
+  must download. As seen before, however, a user may decide to stay within the same micro-
+  frontend for the entire session, resulting in the exact same kilobytes downloaded.
+  
+
+Use Cases
+  The vertical-split architecture is a good solution when your frontend developers have experience with SPA 
+  development. It will also scale up to a certain extent, but if you have hundreds of frontend developers 
+  working on the same frontend application, a horizontal split may suit your project better, because 
+  you can modularize your application even further.
+
+  Another reason to choose this architecture pattern is the level of reusability you want to have across multiple 
+  micro-frontends. For instance, if you reuse mainly components of your design system and some libraries, like 
+  logging or payments, a vertical split may be a great architecture fit. However, if part of your micro-frontend 
+  is replicated in multiple views, a horizontal split may be a better solution. 
+  Again, let the context drive the decision for your project.
+
+
+Architecture Characteristics
+
+Deployability (5/5)
+  Because every micro-frontend is a single HTML page or an SPA, we can easily deploy our artifacts on a 
+  cloud storage or an application server and stick a CDN in front of it. It’s a well-known approach, used for 
+  several years by many frontend developers for delivering their web applications. Even better, when we apply 
+  a multi-CDN strategy, our content will always be served to our user no matter which fault a CDN provider may have.
+
+Modularity (2/5)
+  This architecture is not the most modular. While we have a certain degree of modularization and reusability, 
+  it’s more at the code level, sharing components or libraries but less on the features side. For instance, it’s
+  unlikely a team responsible for the development of the catalog micro- frontend shares it with another 
+  micro-frontend. Moreover, when we have to split a vertical-split micro-frontend in two or more parts because of
+  new features, a bigger effort will be required for decoupling all the shared 
+  dependencies implemented, since it was designed as a unique logical unit.
+
+Simplicity (4/5)
+  Taking into account that the primary aim of this approach is reducing the team’s cognitive load and 
+  creating domain experts using well-known practices for frontend developers, the simplicity is intrinsic. 
+  There aren’t too many mindset shifts or new techniques to learn to embrace this architecture. The overhead 
+  for starting with single-spa or Module Federation should be minimal for a frontend developer.
+
+Testability (4/5)
+  Compared to SPAs, this approach shows some weakness in the application shell’s end-to-end testing. 
+  Apart from that edge case, however, testing vertical-split micro-frontends doesn’t represent a
+  challenge with existing knowledge of unit, integration, or end-to-end testing.
+
+Performance (4/5)
+  You can share the common libraries for a vertical-split architecture,though it requires a minimum of 
+  coordination across teams. Since it’s very unlikely that you’ll have hundreds of micro-frontends with this
+  approach, you can easily create a deployment strategy that decouples the common libraries from the 
+  micro-frontend business logic and maintains the commonalities in sync across multiple micro-frontends. 
+  Compared to other approaches, such as server-side rendering, there is a delay on downloading the code 
+  of a micro-frontend because the application shell should initialize the application with some logic. 
+  This may impact the load of a micro-frontend when it’s too complex or makes many roundtrips to the server.
+
+Developer experience (4/5)
+  A team familiar with SPA tools won’t need to shift their mindset to embrace the vertical split. There 
+  may be some challenges during end-to- end testing, but all the other engineering practices, as well as 
+  tools, remain the same. Not all the tools available for SPA projects are suitable for this architecture,
+  so your developers may need to build some internal tools to fill the gaps. However, the out-of-the-box tools 
+  available should be enough to start development, allowing your team to defer the decisions to build new tools.
+
+Scalability (5/5)
+  The scalability aspect of this architecture is so great that we can even forget about it when we serve our 
+  static content via a CDN. We can also configure the time-to-live according to the assets we are serving,
+  setting a higher time for assets that don’t change often, like fonts or vendor libraries, and a lower time 
+  for assets that change often, like the business logic of our micro-frontends. This architecture can scale 
+  almost indefinitely based on CDN capacity, which is usually great enough to serve billions of users simultaneously.
+  In certain cases, when you absolutely must avoid a single point of failure, you can even create a multiple-CDN 
+  strategy, where your micro-frontends are served by multiple CDN providers. Despite being more complicated, 
+  it solves the problem elegantly without investing too much time creating custom solutions.
+
+Coordination (4/5)
+  This architecture, compared to others, enables a strong decentralization of decision making, as well as 
+  autonomy of each team. Usually, the touching points between micro-frontends are minimal when the domain 
+  boundaries are well defined. Therefore, there isn’t too much coordination needed, apart from an initial 
+  investment for defining the application shell APIs and keeping them as domain unaware as possible.
+
+
+
+
+
+╒════════════════════════════════════╕
+ ╒════════════════════════════════╕ 
+   Horizontal-Split Architectures     
+ ╘════════════════════════════════╛ 
+╘════════════════════════════════════╛
+
+Horizontal-split architectures provide a variety of options for almost every
+  need a micro-frontend application has. These architectures have a very
+  granular level of modularization thanks to the possibility to split the work of
+  any view among multiple teams. In this way, you can compose views reusing
+  different micro-frontends built by multiple teams inside your organization.
+  Horizontal-split architectures are suggested not only to companies that
+  already have a sizable engineering department but also to projects that have a
+  high level of code reusability, such as a multitenant business-to-business
+  (B2B) project in which one customer requests a customization or ecommerce
+  with multiple categories with small differences in behaviors and user
+  interface. Your team can easily build a personalized micro-frontend just for
+  that customer and for that domain only. In this way, we reduce the risk of
+  introducing bugs in different parts of the applications, thanks to the isolation
+  and independence that every micro-frontend should maintain.
+
+
+Do you want to discover where the horizontal-split architecture really shines?
+  let’s fast-forward a few months after the release of the video-streaming platform. the product team asks 
+  for a nonauthenticated version of the catalog to improve the discoverability of the platform assets, 
+  as well as providing a preview of their best shows to potential customers. this boils down to providing 
+  a similar experience of the catalog without the playback experience. the product team would also like 
+  to present additional information on the landing page so users can make an informed decision about 
+  subscribing to the service. in this case, the foundation team, catalog team, and landing page team 
+  will be needed to fulfill this request.. Evolving a web application is never easy, for both technical 
+  and collaboration reasons. Having a way to compose micro-frontends simultaneously and then stitching 
+  them together in the same view, with multiple teams collaborating without stepping on each other’s toes,
+  makes life easier for everyone and enables the business to evolve at speed and in any direction.
+
+Challenges: 
+
+Micro-frontend communication:
+  Embracing a horizontal-split architecture requires understanding how micro-frontends developed by different 
+  teams share information, or states, during the user session. Inevitably, micro-frontends will need to 
+  communicate with each other. For some projects, this may be minimal, while in others, it will be more 
+  frequent. Either way, you need a clear strategy up front to meet this specific challenge. Many developers 
+  may be tempted to share states between micro-frontends, but this results in a socio-technical antipattern. On the 
+  technical side, working with a distributed system that has shared code with other micro-frontends owned by different 
+  teams means that the shared state requires it to be designed, developed, and maintained by multiple teams
+  Every time a team makes a change to the shared state, all the others must validate the change and ensure 
+  it won’t impact their micro-frontends. Such a structure breaks the encapsulation micro-frontends provide,
+  creating an underlying coupling between teams that has frequent, if not constant, external dependencies to 
+  take care of. Moreover, we risk jeopardizing the agility and the evolution of our system
+  because a key part of one micro-frontend is now shared among other micro-frontends. Even worse is when 
+  a micro-frontend is reused across multiple views and a team is responsible for maintaining multiple shared states 
+  with other micro-frontends. On the organization side, this approach risks coupling teams, resulting in the need 
+  for a lot of coordination that can be avoided while maintaining intact the boundaries of every micro-frontend
+
+
+One of micro-frontends’ main benefits is the strong boundaries that allow
+ every team to move at the speed they need, 
+ 
+Independent microservices that can react to (or not react to) external
+  events triggered by one or more producers
+  
+Solid, bounded context that doesn’t leak into multiple services
+
+Reduced communication overhead for coordinating across teams
+
+Agility for every team so they can evolve their microservice based on their customers’ needs
+
+
+Multiframework approach:
+  Using multiple frameworks isn’t great for vertical-split architectures due to performance issues. 
+  On horizontal-split architectures, it’s even more dangerous. When this problem is not addressed in 
+  the design phase, it can cause runtime errors in the final view.
+  
+
+How can different micro-frontends retrieve and store a token safely without multiple round trips to 
+  the backend? The best option we have is storing the token in the localStorage, the sessionStorage, 
+  or a cookie. In this case, all the micro-frontends will retrieve the same token in the defined web 
+  storage solution by convention. Different security restrictions will be applied based on the web storage
+  selected for hosting the token. For instance, if we use localStorage or sessionStorage, all the micro-frontends 
+  have to be hosted in the same subdomain; otherwise the localStorage or sessionStorage where the token is stored 
+  won’t be accessible. In the case of cookies, we can use multiple subdomains but must use the same domain.
+
+
+Micro-frontends refactoring:
+  Another benefit of the horizontal-split architecture is the ability to refactor specific micro-frontends 
+  when the code becomes too complicated to be manageable by a single team or a new team starts owning a 
+  micro-frontend they didn’t develop. While you can do this with a vertical split as well, the
+  horizontal-split micro-frontends have far less logic to maintain, making them a great benefit, 
+  especially for enterprise organizations that have to work on the same platform for many years.
+
+
+Search Engine Optimization
+  Dynamic rendering is another valid technique for this architecture, especially when we decide to use iframes 
+  for encapsulating our micro-frontends. In that situation, redirecting a crawler to an optimized version of 
+  static HTML pages helps with the search engine’s ranking. Overall, what has been discussed so far about 
+  dynamic rendering is also valid for client-side horizontal-split architectures.
+
+Developer Experience
+  The developer experience (DX) of the horizontal-split architecture with a client-side composition is very 
+  similar to the vertical split when a team is developing its own micro-frontend. However, it becomes 
+  more complex when the team needs to test micro-frontends inside a view with other micro-
+  frontends. The main challenge is keeping up with the versions and having a
+  quick turnaround for assembling a view on the developer’s laptop.
+
+
+Maintaining control with effective communication
+  Although horizontal-split architectures are the most versatile, they also present intrinsic implementation 
+  challenges from an organizational point of view, with coordinating a final output for the use being the 
+  main one. When we have multiple micro-frontends owned by different teams composed in the same view, we have 
+  to create a social mechanism for avoiding runtime issues in production due to dependency clashes or CSS 
+  classes overriding each other. As well, observability tools must be added to quickly identify which 
+  micro-frontends are failing in production and provide the team with clear
+  information so they can diagnose the issue in their micro-frontend.
+
+Keeping track of breaking
+  changes using requests for comments (RFCs) or similar documents is strongly recommended for several reasons.
+  First, it creates asynchronous communication between teams, which is especially when teams are distributed 
+  across time zones. It also maintains a record of decisions with the context the company was operating in when 
+  the decision was made. Finally, not everyone performs well during meetings; sometimes one person will
+  monopolize the discussion, preventing others from sharing their opinion. Moving from verbal to written 
+  communications helps everyone have their voice be heard.
+
+
+Use Cases:::::
+
+One reason to embrace the horizontal-split architecture is the micro-frontends’ reusability across the 
+  application or multiple applications. Imagine a team responsible for the payment micro-frontend of an 
+  ecommerce website, and the micro-frontend contains different states based on the type of view and payments 
+  available. The payment micro-frontend is present in every view in which the user wants to perform a payment 
+  action, including a landing page, a product detail view, or even a subscription page for another product. This
+  situation is applicable at a larger scale on a B2B application, where similar
+  UX constructs are replicated in several system views.
+
+The final use case for this architecture is when we are developing a multitenant application for which the 
+  vast majority of the interface is the same but allowing customers to build specific features to make the 
+  software suitable for their specific organization. For example, let’s say we are developing a digital till 
+  system for restaurants, and we want to configure the tables on the floor on a customer-by-customer basis. 
+  The application will have the same functionality for every single customer, but a restaurant chain
+  can request specific features in the digital till system. The micro-frontend team responsible for the 
+  application can implement these features without forking the code for every customer; instead, they will 
+  create a new micro-frontend for handling the specific customer’s needs and deploy it in their tenant.
+
+
+A Module Federation application is composed of two parts:
+
+  The host
+  Represents the container of one or more micro-frontends or libraries loaded.
+
+The remote
+  Represents the micro-frontend or library that will be loaded inside a host at runtime. A remote exposes one 
+  or more objects that can be used by the host when the remote is lazy-loaded into an application.
+
+Imagine that all your micro-frontends are using Vue.js 3.0.0. With Module
+  Federation, you will just need to specify that Vue version 3 is a shared library; at compile time, webpack 
+  will export just one Vue version for all the micro-frontends using it. And if you wanted to intentionally 
+  work with different versions of Vue in the same project? Module Federation will wrap the two libraries in 
+  different scopes to avoid the clashes that could happen at runtime, or you can even specify the scope 
+  for a different version of the same library using Module Federation APIs.
+
+Module Federation is available not only when we want to run an application
+  fully client side but also when we want to use it with server-side rendering. In fact, we can 
+  asynchronously load different components without needing to deploy the application server 
+  that composes the page again and serve the final result to a client request.
+
+Composition
+  Using Module Federation for a micro-frontend architecture is as simple as importing an external JavaScript 
+  chunk lazy-loaded inside a project. Composition takes place at runtime either on the client side, 
+  when we use an application shell for loading different micro-frontends, or on the server side, when we 
+  use server-side rendering. When we load a micro-frontend on an application shell at runtime, we can fetch 
+  the micro-frontend directly from a CDN or from an application server. And the same is true when we are
+  working with a server-side rendering architecture. In this case, composition takes place at the origin, 
+  and we can load micro-frontends at runtime before serving them to a client request.
+
+Shared code
+a unidirectional implementation brings several advantages, such as the following:
+
+ 1- Code is easier to debug, as we know what code is coming from where.
+ 2- It’s less prone to errors, as we have more control over our code.
+ 3- It’s more efficient, as the micro-frontend knows the boundaries of each part of the system.
+
+
+
+╒════════════════════════════╕
+  Module Federation Overview 
+╘════════════════════════════╛
+
+Architecture characteristics
+
+Deployability (4/5)
+  Webpack divides a micro-frontend into JavaScript chunks, making them easy to deploy in any cloud service 
+  from any automation pipeline. And because they are all static files, they are highly cacheable. While we have
+  to handle the scalability of the application servers responding to any client requests in an SSR approach, 
+  the ease of integration and rapid feedback are definitely big pluses for this approach.
+
+Modularity (4/5)
+  This plug-in’s level of modularity is very high, but so is its risk. If we’re
+  not careful, we can create many external dependencies across teams; therefore, 
+  we have to use Module Federation wisely to avoid creating organizational friction.
+
+Simplicity (5/5)
+  Webpack’s new system solves many problems behind the scenes, but the
+  abstraction created by Module Federation makes the integration of micro-frontends very 
+  similar to other, more familiar frontend architectures like SPA or SSR.
+
+Testability (4/5)
+  Although Module Federation offers an initial version of a federated test
+  using Jest for integration testing, we can still apply unit and end-to-end
+  testing similar to how we’re used to working with other frontend architectures.
+
+Performance (4/5)
+  With Module Federation, we gain a set of capabilities, such as sharing common libraries or UI frameworks, 
+  that won’t compromise the final artifact’s performance. Bear in mind that the mapping between 
+  a micro-frontend and its output files could be one to many, so a micro-frontend may be represented by 
+  several small JavaScript files, which may increase the initial chattiness between a client and a CDN 
+  performing multiple roundtrips for loading all the files needed for rendering a micro-frontend.
+
+Developer experience (5/5)
+  This is probably one of the best developer experiences currently available for working with micro-frontends. 
+  Module Federation integrates very nicely in the webpack ecosystem, hiding the complexity of composing
+  micro-frontends and enabling the implementation of more traditional features, taking care of tedious 
+  topics like code sharing and asynchronous import of our static artifacts or libraries.
+
+Scalability (5/5)
+  Module Federation’s approach makes scaling easy, especially when the
+  application is fully client side. The static JavaScript chunks easily served
+  via a CDN make this approach extremely scalable for a vertical-split architecture.
+
+Coordination (3/5)
+  When we follow the decisions framework shared in the first chapters of
+  this book in conjunction with Module Federation, we can really facilitate
+  the life of our enterprise organization. However, the accessible approach
+  provided by this plug-in can lead to abuse of the modularity, resulting in
+  increased coordination and potential refactors in the long term.
+
+
+╒═════════╕
+  Iframes 
+╘═════════╛
+
+An iframe is an inline frame used inside a webpage to load another HTML
+  document inside it. When we want to represent a micro-frontend as an independent artifact completely isolated 
+  from the rest of the application, iframes are one of the strongest isolations we can have inside a browser.
+  An iframe gives us granular control over what can run inside it. The less privileged implementation using 
+  the sandbox attribute prevents any JavaScript logic from executing or any forms from being submitted:
+  <iframe sandbox src="https://mfe.mywebsite.com/catalog/">
+
+  An iframe gives us access to specific functionalities, combining sandbox with other sandbox attribute 
+  values, such as allow-forms or allow- scripts, to ease the sandbox attribute restrictions, 
+  allowing form submission or JavaScript file execution, respectively:
+  <iframe sandbox="allow-scripts allow-forms" src="https://mfe.mywebsite.com/catalog"/>
+
+  Additionally, the iframe can communicate with the host page when we use
+  the postMessage method. In this way, the micro-frontend can notify the
+  broader application when there is a user interaction inside its context, and the
+  application can trigger other activities, such as sharing the event with other
+  iframes or changing part of the UI interface present in the host application.  
+
+
+Developer experience
+  Dealing with iframes makes developers’ lives easier, considering the sandboxed environment they use. 
+  One of the main challenges of using this approach is with end-to-end testing, when retrieving objects
+  programmatically across multiple iframes can result in a huge effort due to object nesting. Overall, 
+  a micro-frontend will be represented by an HTML entry point, with additional resources loaded such as 
+  JavaScript or CSS files very similar to what we are used to in other frontend architectures, like SPAs.
+
+Use cases
+  Iframes are definitely not the solution for every project, yet iframes can be handy in certain situations. 
+  Iframes shine when there isn’t much communication between micro-frontends and we must enforce the encapsulation 
+  of our system using a sandbox for every micro-frontend. The sandboxes release the memory, and there won’t be 
+  dependency clashes between micro-frontends, removing some complexities of other implementations.
+
+  The final use case is when we have to maintain a legacy application that isn’t
+  actively developed but is just in support mode and it has to live alongside the
+  development of a new application, which will both have to be presented to
+  users. In this case, the legacy application can be easily isolated in an iframe
+  living alongside a micro-frontends architecture without the risk of polluting it.
+  
+Drawbacks include accessibility, performance, and lack of indexability by crawlers, so best use cases for 
+  iframes are in desktop, B2B, or intranet applications. For example, Spotify used to use iframes to 
+  encapsulate its micro-frontends in desktop applications, preventing teams from leaking anything outside 
+  an iframe while allowing communication between them via events. That helps a desktop application to not 
+  download all the dependencies for rendering a micro-frontend; they are all available with the executable
+  download. If you have a desktop application to develop, then, and multiple
+  teams will contribute to specific domains, iframes might be a possible solution.
+
+
+Architecture characteristics
+
+Deployability (5/5)
+  The deployability of this architecture is nearly identical to the vertical-split one, with the main 
+  difference being we will have more micro-frontends in the horizontal split because we will be dealing 
+  with multiple micro-frontends per view. 
+
+Modularity (3/5)
+  Iframes provide a good level of modularity, thanks to the ability to organize a view in multiple 
+  micro-frontends. At the same time, we will need to find the right balance to avoid abusing this characteristic.
+
+Simplicity (3/5)
+  For a team working on a micro-frontend, iframes are not difficult. The challenge is in communicating across 
+  iframes, orchestrating iframe sizes when the page is resized without breaking the layout. In general, dealing
+  with the big picture in absence of frameworks may require a bit of work.
+
+Testability (3/5)
+  Testing in iframes doesn’t have any particular challenges apart from the one described for 
+  horizontal-split architectures. However, end-to-end testing may become verbose and challenging 
+  due to the DOM tree structure of iframes inside a view.
+
+Performance (2/5)
+  Performance is probably the worst characteristic of this architecture. If not managed correctly, performance 
+  with iframes may be far from great. Although iframes solve a huge memory challenge and prevent dependency 
+  clashing, these features don’t come free. In fact, iframes aren’t a solution for accessible websites because 
+  they aren’t screen-reader-friendly. Moreover, iframes don’t allow search engines to index the content. 
+  If either of these is a key requirement for your project, it’s better to use another approach.
+
+Developer experience (3/5)
+  The iframes DX experience is similar to the SPA one. Automation pipelines are set up in a similar manner, 
+  and final outputs are static files, like an SPA. The main challenge is creating a solid client-side
+  composition that allows every team working with micro-frontends to test their artifacts in conjunction 
+  with other micro-frontends. Some custom tools for speeding up our teams’ DX may be needed. The most
+  challenging part, though, is creating end-to-end testing due to the DOM replication 
+  across multiple iframes and the verbosity for selecting an object inside it.
+
+Scalability (5/5)
+  The content served inside an iframe is highly cacheable at the CDN level,
+  so we won’t suffer from scalability challenges at all. At the end, we are
+  serving static content, like CSS, HTML, and JavaScript files.
+
+Coordination (3/5)
+  As with all horizontal-split architectures, it’s important to avoid too many
+  teams collaborating in the same view. Thanks to the sandbox nature of
+  iframes, code clashes aren’t a concern, but we can’t have interactions
+  spanning across the screen when we have multiple iframes, because coordinating 
+  these kinds of experiences is definitely not suitable for this architecture.
+
+
+
+
+╒═════════════════════════════╕
+  Web components technologies 
+╘═════════════════════════════╛
+
+Web components consist of three main technologies, which can be used
+  together to create custom elements with encapsulated functionality that can 
+  be reused wherever you like without fear of code collisions. 
+
+Custom elements
+  They are an extension of HTML components. We can use them as containers of our micro-frontends, 
+  allowing us to interact with the external world via callbacks or events, for instance. Moreover, 
+  we can configure exposed properties to configure our micro-frontends accordingly when needed.
+
+Shadow DOM
+  A set of JavaScript APIs for attaching an encapsulated “shadow” DOM tree to an element, rendered 
+  separately from the main DOM. In this way, you can keep an element’s features private, so they 
+  can be scripted and styled without the fear of collision with other parts of the document.
+
+HTML templates
+  The template and slot elements enable you to write markup templates that are not displayed in the 
+  rendered page. These can then be reused multiple times as the basis of a custom element’s structure.
+
+Among these three technologies, custom elements and shadow DOM are
+  those that make web components useful for micro-frontend architectures. Both elements allow encapsulation 
+  of the code needed in a subdomain without affecting the application shell. Custom elements are used 
+  as wrappers of a micro-frontend, while the shadow DOM allows us to encapsulate the
+  micro-frontend’s styles without causing them to override another style of micro-frontend.
+
+There are two ways for integrating polyfills for web components.
+  The first is including them all. The package size would be quite large, but
+  you are bulletproof, extending the retrocompatibility of your code for older
+  browsers. The second option is loading at runtime only the polyfills needed.
+  In this case, the package size is by far smaller, but it could require a bit of
+  time before loading the right polyfills, considering we have to identify which
+  ones are needed on the browser in which we are running the application.
+
+
+Use cases
+  Embracing web components for your micro-frontend architecture is a great
+  choice when you need to support multitenant environments. Given their
+  broad compatibility with all the major frameworks, web components are the
+  perfect candidate for use in multiple projects with the same or different
+  frontend stack, as with multitenant projects. In multitenant projects, our
+  micro-frontends should be integrated in multiple versions of the same application or 
+  even in multiple applications, which makes web components a simple, effective solution.
+
+
+Deployability (4/5)
+  Loading web components at runtime is easily doable. We just need a CDN for serving them, and they can 
+  then be integrated everywhere. They are also easy to integrate with compile time integration; we add them as
+  we import libraries in JavaScript. Although technically you can render them server side, the DX is not 
+  as sleek as other solutions proposed by UI frameworks like React.
+
+Modularity (3/5)
+  Web components’ high degree of modularity allows you to decompose an
+  application into well-encapsulated subdomains. Moreover, because they
+  are a web standard, we can use them in several situations without too
+  many problems when we operate inside browsers that support them. The
+  risk of using them as a micro-frontend wrapper is that it can confuse new developers who are 
+  joining a project, blurring the line between components and micro-frontends. This often results 
+  in a proliferation of “micro-frontends”' in a view, but probably we should call them nano- frontends.
+  
+Simplicity (4/5)
+  Using web components should be a simple task for anyone who is
+  familiar with frontend technologies. The main challenge is not splitting
+  our micro-frontends too granularly. Because web components can also be
+  used for building component libraries, the line between micro-frontends
+  and components can be blurred. However, focusing on the business side of our application 
+  should lead us to correctly identify micro-frontends from components in our applications.
+
+Testability (4/5)
+  Leveraging different testing strategies using web components doesn’t present too many challenges, 
+  but we have to be familiar with their APIs. Web components’ APIs differ from UI frameworks, making it
+  challenging to do what we are used to doing with our favorite framework
+
+Performance (4/5)
+  One of the main benefits of web components is that we are extending HTML components, 
+  meaning we aren’t making them extremely dense with external code from libraries. As a result, 
+  they should be one of the best solutions for rendering your micro-frontends client side.
+
+Developer experience (4/5)
+  The DX of your projects shouldn’t be too different from your favorite
+  framework. You have to learn another framework to simplify your life,
+  though there aren’t too many differences in the development life cycle,
+  especially in the syntax, but that’s why there are web component
+  frameworks for simplifying the developer’s life.
+
+Scalability (5/5)
+  Whether we implement our web components at compile or runtime, we
+  will be delivering static files. A simple infrastructure can easily serve millions 
+  of customers without the bother of maintaining complex infrastructure solutions to handle traffic.
+
+Coordination (3/5)
+  The main challenge is making sure we have the micro-frontends’
+  granularity right, because this will impact application delivery speed and avoid external 
+  dependencies that may lead to developer frustrations. We need to have a strong sense of 
+  discipline when identifying what is represented by a component or by a micro-frontend.
+
+
+
+
+╒═════╕
+  SSI 
+╘═════╛
+Use cases
+  The typical use cases for this architecture are business-to-consumer (B2C) websites, for which the content has 
+  to be highly discoverable by search engines, or B2B solutions with modular layouts, such as dashboards where
+  the user interface doesn’t require too many drifts in the layout, as with a customer-facing solution. A tangible 
+  example of these types of implementations is OpenTable, an online restaurant-reservation service company based 
+  in San Francisco, with offices all over the world. The platform contains a host of tools that streamline the DX, 
+  making it easy to build micro-frontends thanks to OpenComponents.
+
+
+Architecture characteristics
+
+Deployability (4/5)
+  These architectures may be challenging when you have to handle burst traffic or with high-volume traffic. 
+  When we decide to deploy a new micro-frontend, we’ll also likely have to deploy some API to fetch the
+  data, creating more infrastructure and configuration to handle. To limit the extra work and avoid 
+  production issues, automate repetitive tasks as much as possible.
+
+Modularity (5/5)
+  This architecture key characteristic is the control we have over not only how we compose micro-frontends 
+  but also how we manage different levels of caching and final output optimization. Because we can control
+  every aspect of the frontend with this approach, it’s important to
+  modularize the application to fully embrace this approach.
+
+Simplicity (3/5)
+  This architecture isn’t the easiest to implement. There are many moving parts, and observability tools on 
+  both the frontend and backend need to be configured so that you’ll understand what’s happening when the
+  application doesn’t behave as expected. Taking into account the architectures seen so far, this is the 
+  most powerful and the most challenging, especially on large projects with burst traffic.
+
+Testability (4/5)
+  This is probably the easiest architecture to test, considering it doesn’t
+  differ too much from server-side rendering applications. There may be
+  some challenges when we expect every micro-frontend to hydrate the
+  code on the client side because we’ll have some additional logic to test,
+  but since we’re talking about micro-frontends, it won’t be too much additional effort.
+
+Performance (5/5)
+  With this implementation, we have full control of the final result being
+  served to a client, allowing us to optimize every single aspect of our
+  application, down to the byte. That doesn’t mean optimization is easier
+  with this approach, but it definitely provides all the possibilities needed to
+  make a micro-frontend application highly performant.
+
+Developer experience (3/5)
+  There are frameworks that provide an opinionated way to create a smooth developer experience, but it’s very 
+  likely you will need to invest time creating custom tools to improve project management and introducing
+  dashboards, additional command line tools, and so on. Also, a frontend developer may need to boost their 
+  backend knowledge, learning how to run servers locally, scale them in production, work in the cloud or on
+  premises efficiently, manage the observability of the composition layer, and more. Full stack developers 
+  are more likely to embrace this approach but not always.
+
+Scalability (3/5)
+  Scalability may be a nontrivial task for high-volume projects because you’ll need to scale the backend 
+  that composes the final view to the user.  A CDN can work, but you will have to deal with different levels of
+  caching. CDNs are helpful with static content, but less so with personalized ones. Moreover, when you need 
+  to maintain a low response latency and you aren’t in control of the API you are consuming, you will
+  have another challenge to solve on top of the scalability of the micro-frontend composition layer.
+
+Coordination (3/5)
+  Considering all the moving parts included in this architecture, the coordination has to be well designed. 
+  The structure has to enable different teams to work independently, reducing the risks of too many external
+  dependencies that can jeopardize a sprint and cause frustration for developers. Furthermore, developers have 
+  to keep both the big picture and the implementation details in mind, making the organization structure
+  a bit more complicated, especially with large organizations and distributed teams.
+
+
+
+
+Edge Side
+  Edge Side Includes, or ESI, was created in 2001 by companies like Akamai and Oracle. It’s a markup language 
+  used for assembling different HTML fragments into an HTML page and serving the final result to a client. 
+  Usually, ESI is performed at the CDN level, where it offers great scalability options because of the CDN’s 
+  architecture. Different points of presence across the globe serve every user requesting static content. 
+  Every request is redirected to the closest point of presence, reducing the latency between the user and
+  where the content is stored. Additionally, because CDNs are great for caching static assets, this combination 
+  of capillarity across the globe and cacheability makes ESI a potential solution for developing 
+  micro-frontends that don’t require dynamic content, such as catalog applications.
+
+
+Transclusion
+  ESI uses a technique called transclusion for including existing content inside a new document without the 
+  need to duplicate it. In early 2000, this mechanism was used to reduce the cut-and-paste process that 
+  every developer was using to create web pages. Now we can use it to reuse content and generate new views 
+  based on simple constructs like conditional processing or variable support. This provides a useful mechanism 
+  to reduce the time it takes to build websites despite the poor developer experience.
+  
+  Client-side includes (CSI) also leverage transclusion, such as the h-include. Applying transclusion inside 
+  the browser uses the same logic for interpreting an ESI tag. In fact, each <h-include> element will create 
+  a request to the URL and replace the innerHTML of the element with the response of the request. Using CSI 
+  with ESI will help supplement ESI’s limitation, adding the possibility of serving dynamic content inside a predefined 
+  template. In this way, we can use ESI to leverage a CDN’s scalability. When we further combine this with 
+  JavaScript’s ability to load HTML fragments directly on the client side, we can make our websites far more interactive.
+
+
+Use cases
+  One of the main use cases for edge-side composition is for managing large static websites where multiple 
+  teams are contributing to the same final application. The IKEA catalog was implemented in some countries 
+  using a combination of ESI and CSI in this way. Another potential application would be using ESI for the 
+  static part of a website and serving the rest with micro-frontends rendered at client side. This
+  technique is also known as micro-caching, but it is complicated to put in place as well as to debug. 
+  Because of the poor developer experience, not many companies have implemented this technology, and despite 
+  its age, it has never seen the mainstream.
+
+
+Architecture characteristics
+
+Deployability (3/5)
+  Similar to the client-side composition, this approach guarantees an easy
+  deployment and artifacts consumptions via CDN. Because we are talking about a horizontal split, we need 
+  to increase the effort of managing potential network errors that would prevent a micro-frontend from being
+  composed on the CDN level. Finally, not all the CDN supports ESI, which could be a problem in the long 
+  run for your project, especially when you have to change CDN providers. However, managing multiple
+  environments and deploying micro-frontends in local environment is not a smooth experience.
+  
+Modularity (4/5)
+  Transclusion facilitates modular design, so we can reuse micro-frontends
+  in multiple pages. ESI becomes even more interesting when mixed with
+  CSI, covering the static parts with ESI and the more dynamic ones with CSI.
+  
+Simplicity (2/5)
+  If horizontal-split architectures can become quite complex in the long run, the edge-side ones can be 
+  even more complex because of the poor developer experience and the need of a CDN or Varnish to test your code.
+  
+Testability (3/5)
+  ESI doesn’t shine in testing either. Unit testing may be similar to what
+  we’re used to implementing for other architectures, but to implement an
+  integration and end-to-end testing strategy, we need to rely on a more
+  complex infrastructure, which could slow down the feedback loop for a team.
+
+Performance (3/5)
+  Since ESI is a composition on the CDN level most of the time, the
+  application can have great performance out of the box thanks to the cache
+  for static content. However, we need to consider that when a micro-
+  frontend hangs due to network issues, none of the pages will be served
+  until the request timed out—not exactly the best customer experience.
+
+Developer experience (2/5)
+  The DX of any solution is a key factor in adoption; the more complicated
+  a solution is, the less developers will embrace it. ESI is definitely a
+  complicated solution. To locally test your implementation, you will need
+  a Varnish, NGINX, or Akamai testing server inside a virtual machine or a
+  docker container. And if you are using a CDN, be ready for a long
+  feedback loop on whether your code is behaving correctly. There are
+  other tools available, but it’s still a clunky experience compared to the other architectures.
+
+Scalability (4/5)
+  If your project is static content, ESI is probably one of the best solutions
+  you can have, thanks to the composition at the CDN level. And with a mix of static and dynamic 
+  content, using ESI in conjunction with CSI, the scalability of your solution will be bulletproof.
+  
+Coordination (3/5)
+  Edge-side composition allows you to leverage micro-frontend principles,
+  allowing you to have independent teams and artifacts. However, due to
+  the poor DX, you may need more coordination across teams, especially
+  when there are changes in the production environment that affect all the
+  teams. Similar to the recommendation for server-side composition, plan
+  your team structure accordingly and be sure to iterate to validate decisions.
+
+
+
+Behind the scenes, Module Federation orchestrates two webpack plug-ins:
+  ContainerPlugin and ContainerReferencePlugin. The first is responsible for
+  creating a container to asynchronously load and synchronously evaluate a
+  module, while the second is responsible for overriding the container created
+  as placeholder with the remote module and making the code acting as present
+  in the initial bundle.
+  Leveraging this architecture allows us to not only specify remotes in the
+  webpack configuration but also load them using JavaScript in our code. For
+  instance, we can fetch the routes from an API and generate a dynamic view
+  of remotes based on the user’s country or role.
+
+
+
+

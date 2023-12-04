@@ -1,0 +1,84 @@
+OBSERVER PATTERN
+  The observer pattern (also known as publish/subscribe pattern) is a behavioral design pattern that defines 
+  a one-to-many relationship between objects such that, when one object changes its state, all dependent 
+  objects are notified and updated automatically. An object with a one-to-many relationship with other 
+  objects that are interested in its state is called the subject or publisher. Its dependent objects are 
+  called observers or subscribers. The observers are notified whenever the state of the subject
+  changes, and then they act accordingly. The subject can have any number of dependent observers.
+
+
+The concept of encapsulation comes from object-oriented programming (OOP) and is associated with 
+  classes and how to handle data. Encapsulation binds together the attributes (data) and the methods 
+  (functions and procedures) that manipulate the data in order to protect the data. The general rule, 
+  enforced by many languages, is that attributes should only be accessed (that is, retrieved or modified) 
+  using methods that are contained (encapsulated) within the class definition.
+
+
+
+CODE DUPLICATION OVER WRONG ABSTRACTIONS
+  Many well-known people in the industry have started to realize that abstracting code is not always a 
+  benefit, especially in the long run. In certain cases, code duplication brings more benefits to a premature 
+  or a hasty abstraction. Moreover, duplicated code can be easily abstracted if and when needed; it’s more 
+  challenging to try to move away from abstractions once they’re present in the code. If you are interested 
+  in this topic, read “The Wrong Abstraction”, a 2016 blog post by Sandi Metz. Kent Dodds’s AHA programming 
+  or “Avoid Hasty Abstractions” concept is strongly inspired by the work Metz describes in his blog and talk. 
+  Also, the well-known DRY principle (don’t repeat yourself) appears to be misapplied by many developers, 
+  who just looked in the code for duplicated lines of code and abstracted them. In the second edition of
+  Pragmatic Programmer (Addison-Wesley), where the DRY principle was first introduced, the authors provide 
+  a great explanation of this point:
+    In the first edition of this book we did a poor job of explaining just
+    what we meant by Don’t Repeat Yourself. Many people took it to refer
+    to code only: they thought that DRY means “don’t copy-and-paste lines of source.”
+    That is part of DRY, but it’s a tiny and fairly trivial part. DRY is about
+    the duplication of knowledge, of intent. It’s about expressing the same
+    thing in two different places, possibly in two totally different ways.
+    [emphasis added]
+
+
+
+COMPONENTS VERSUS MICRO-FRONTENDS
+  A good rule of thumb to understand if we are building a component or a micro-frontend is that, with a 
+  component, we tend to extend for different use cases, exposing multiple properties for covering all 
+  the use cases for different scenarios. Instead, with a micro-frontend, we encapsulate the
+  logic, allowing communication via events.
+
+
+  
+SSI are used for dividing a final view into multiple parts, usually called fragments, that are composed by 
+  a server before returning a static page to the client request. Back in the 1990s, SSI were used to 
+  decouple an HTML page’s static content from other parts that may or not have been dynamic. SSI have 
+  directives—placeholders that the server interprets in order to perform a specific action on a page. 
+  That action might be including a micro-frontend or running logic, like including different fragments 
+  based on specific parameters, such as providing different UIs based on the user status.
+  SSI directives look like this:
+  <!--# include virtual="acme.com/mfe/catalog" -->
+  In particular, the include directive is very important for micro-frontends because when the server 
+  interprets this directive, it will add the fragment into the final DOM
+
+  When a client requests a page, the server retrieves the page containing the different directives. The server 
+  interprets all the directives and fetches the different fragments in parallel. When the directives are 
+  fully loaded, the server returns the final response to the client.  Clearly, when a fragment takes time to 
+  return, the page’s time to the first byte is affected. Luckily for us, we can set up timeouts as well 
+  as stub content to replace a fragment that times out or returns an empty body. Another challenge of this 
+  approach is avoiding overlaps in our CSS classes. As discussed before, creating prefixes for every class 
+  can help avoid undesired outcomes for your customers. Finally, it’s important to highlight that SSI
+  won’t enrich your user’s website experience, so you will need to add some JavaScript logic to the page to 
+  run on the client side if you want the benefits of both s and page interactivity.
+
+
+This is how ESI looks before being served to a browser:
+<html>
+  <body>
+    Welcome to MFE with ESI
+    <esi:include src="https://www.myorigin.com/MFE_A.html"/>
+    <esi:include src="https://www.myorigin.com/MFE_B.html"/>
+  </body>
+</html>
+
+When the markup language is interpreted, the final result will be a static
+HTML page completely renderable by a browser.
+
+
+
+
+

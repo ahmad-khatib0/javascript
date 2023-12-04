@@ -1,0 +1,132 @@
+# apiVersion: skaffold/v2alpha3
+# kind: Config
+# build:
+#   artifacts:
+#     - image: ahmadkh007/client
+#       context: ../../client
+#       sync:
+#         manual:
+#           - src: src/**/*.js
+#             dest: .
+#       docker:
+#         dockerfile: Dockerfile
+#     - image: ahmadkh007/comments
+#       context: ../../comments
+#       sync:
+#         manual:
+#           - src: '*.js'
+#             dest: .
+#       docker:
+#         dockerfile: Dockerfile
+#     - image: ahmadkh007/event-bus
+#       context: ../../event-bus
+#       sync:
+#         manual:
+#           - src: '*.js'
+#             dest: .
+#       docker:
+#         dockerfile: Dockerfile
+#     - image: ahmadkh007/moderation
+#       context: ../../moderation
+#       sync:
+#         manual:
+#           - src: '*.js'
+#             dest: .
+#       docker:
+#         dockerfile: Dockerfile
+#     - image: ahmadkh007/posts
+#       context: ../../posts
+#       sync:
+#         manual:
+#           - src: '*.js'
+#             dest: .
+#       docker:
+#         dockerfile: Dockerfile
+#     - image: ahmadkh007/query
+#       context: ../../query
+#       sync:
+#         manual:
+#           - src: '*.js'
+#             dest: .
+#       docker:
+#         dockerfile: Dockerfile
+#   local:
+#     push: false
+# manifests:
+#   rawYaml:
+#     - ./*
+# deploy:
+#   kubectl: {}
+
+apiVersion: skaffold/v2alpha3
+kind: Config
+
+metadata:
+  name: skaffold
+
+deploy:
+  kubectl:
+    manifests:
+      - './*'
+# So in total, this is really doing three things.
+# When we start up skaffold, apply these files.
+# When we make a change, apply these files
+# whenever we stop skaffold. Find all the objects related to these config files and delete them.
+
+build:
+  local:
+    push: false # don't push the image docker-hub
+  artifacts:
+    - image: ahmadkh007/client
+      context: '../../client'
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: 'src/**/*.js'
+            dest: .
+      # e.g we installed a package, the file ex is not js, so we made a change to a file that
+      # is not matching up to this little matcher right here, skaffold is going to decide to
+      # completely rebuild our image and update the deployment tied to it....
+      # but if we updated a js file, skaffold is gonna sync it with the deployments only
+
+    - image: ahmadkh007/comments
+      context: '../../comments'
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js'
+            dest: .
+    - image: ahmadkh007/event-bus
+      context: '../../event-bus'
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js'
+            dest: .
+    - image: ahmadkh007/moderation
+      context: '../../moderation'
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js'
+            dest: .
+    - image: ahmadkh007/posts
+      context: '../../posts'
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js'
+            dest: .
+    - image: ahmadkh007/query
+      context: '../../query'
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js'
+            dest: .

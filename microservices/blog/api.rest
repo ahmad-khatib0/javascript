@@ -1,0 +1,7 @@
+### 
+POST http://192.168.49.2:31855/posts 
+Content-Type: application/json
+
+{
+  "title" : "this is a test"
+}

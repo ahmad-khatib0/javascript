@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: posts-depl
+
+spec:
+  # Replicas is the number of pods that we want to create running some particular image.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: posts # bind all pods will be created with this label
+  template:
+    # the template is where we specify the exact configuration of a pod
+    # that we want this deployment to create
+    metadata:
+      labels: # these labels (that match with the selector section)
+        # will help deployment find the pods that it should to manage
+        app: posts
+    spec:
+      containers: # the containers that needs to be inside this pod
+        - name: posts
+          image: ahmadkh007/posts
+          imagePullPolicy: IfNotPresent
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: posts-clusterip-srv
+spec:
+  selector:
+    app: posts
+  type: ClusterIP
+  ports:
+    - name: posts
+      protocol: TCP
+      port: 4000
+      targetPort: 4000

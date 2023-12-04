@@ -1,0 +1,8 @@
+
+ +----------------------------------------------------------------------------+
+ | NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE |
+ | posts-srv    NodePort    10.96.238.81   <none>        4000:31247/TCP   31s |
+ +----------------------------------------------------------------------------+
+ 
+-- 4000:31247 ,  the 31247  port is called  nodePort. This is a randomly assigned 
+   port that we use to actually get access to that service from outside of our cluster.

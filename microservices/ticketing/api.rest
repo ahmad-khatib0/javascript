@@ -1,0 +1,81 @@
+@domain = https://ticketing.test
+
+
+###
+GET {{domain}} HTTP/1.2
+###
+GET {{domain}}/auth/signup HTTP/1.2
+
+###
+POST {{domain}}/api/users/signup HTTP/1.2 
+Content-Type: application/json
+
+{
+    "email" : "test@test.com" , 
+    "password" : "12345678"
+}
+
+###
+POST {{domain}}/api/users/signin HTTP/1.2 
+Content-Type: application/json
+
+{
+    "email" : "test@test.com" , 
+    "password" : "12345678"
+}
+
+###
+GET {{domain}}/api/users/currentuser HTTP/1.2 
+
+###
+POST {{domain}}/api/users/signout HTTP/1.2 
+
+###
+# @name createTicket 
+POST {{domain}}/api/tickets HTTP/1.2
+Content-Type: application/json
+
+{ 
+    "title": "ticket title",
+    "price": 44
+}
+
+###
+@ticketId = {{createTicket.response.body.id}}
+
+###
+GET {{domain}}/api/tickets/ HTTP/1.2 
+
+###
+GET {{domain}}/api/tickets/{{ticketId}} HTTP/1.2 
+
+###
+PUT {{domain}}/api/tickets/{{ticketId}} HTTP/1.2
+Content-Type: application/json
+
+{ 
+    "title": "new title",
+    "price": 444
+}
+
+
+###
+# @name orderTicket 
+POST {{domain}}/api/orders HTTP/1.2
+Content-Type: application/json
+
+{ 
+    "ticketId": "{{ticketId}}"
+}
+
+###
+@orderId = {{orderTicket.response.body.id}}
+
+###
+POST {{domain}}/api/payments HTTP/1.2
+Content-Type: application/json
+
+{ 
+    "orderId": "{{orderId}}", 
+    "token": "tok_visa"
+}
