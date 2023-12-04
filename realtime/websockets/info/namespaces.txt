@@ -1,0 +1,35 @@
+
+ ▲                                                                                                  ▲
+ █ your application has multiple tenants so you want to dynamically create one namespace per tenant █
+ ▼                                                                                                  ▼
++-----------------------------------------+
+| const workspaces = io.of(/^\/\w+$/);    |
+| workspaces.on("connection", socket => { |
+| const workspace = socket.nsp;           |
+|                                         |
+| workspace.emit("hello");                |
+| });                                     |
++-----------------------------------------+
+
+┌
+│ note that multiplexing will be disabled in the following cases:                                          
+│ --  multiple creation for the same namespace                                                             
+│ --  different domains                                                                                    
+│ --  usage of the forceNew option:                                                                        
+│     const socket1 = io();                                                                                    
+│     const socket2 = io("/admin", { forceNew: true }); // no multiplexing, two distinct WebSocket connections 
+└                                                                                                           
+
+
+Dynamic namespaces:  (dynamically create namespaces) 
+.......................... either with a regular expression, or with a function ............................
+
+---   io.of(/^\/dynamic-\d+$/);                        
+
+---   io.of((name, auth, next) => {
+         next(null, true); // or false, when the creation is denied
+      });
+
+using it:     io.of(/^\/dynamic-\d+$/).on("connection", (socket) => {
+                  const namespace = socket.nsp;
+              });

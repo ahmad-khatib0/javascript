@@ -1,0 +1,137 @@
+************************************************************************************
+********************************* SOCKET IO SERVER ********************************* 
+************************************************************************************
+
+ ▲
+ █ -- The Server instance 
+ ▼                         
+ ╭─────────────────────────────────────────────────────────────────────────────╮
+ │ // return all Socket instances of the main namespace                        │
+ │ const sockets = await io.fetchSockets();                                    │
+ │                                                                             │
+ │ // return all Socket instances in the "room1" room of the main namespace    │
+ │ const sockets = await io.in("room1").fetchSockets();                        │
+ │                                                                             │
+ │ // return all Socket instances in the "room1" room of the "admin" namespace │
+ │ const sockets = await io.of("/admin").in("room1").fetchSockets();           │
+ │                                                                             │
+ │ // this also works with a single socket ID                                  │
+ │ const sockets = await io.in(theSocketId).fetchSockets();                    │
+ ╰─────────────────────────────────────────────────────────────────────────────╯
+
+ ╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+ │ The sockets variable in the example above is an array of objects exposing a subset of the usual Socket class │
+ │                                                                                                              │
+ │ for (const socket of sockets) {                                                                              │
+ │ console.log(socket.id);                                                                                      │
+ │ console.log(socket.handshake);                                                                               │
+ │ console.log(socket.rooms);                                                                                   │
+ │ console.log(socket.data);                                                                                    │
+ │ socket.emit(/* ... */);                                                                                      │
+ │ socket.join(/* ... */);                                                                                      │
+ │ socket.leave(/* ... */);                                                                                     │
+ │ socket.disconnect(/* ... */);                                                                                │
+ │ }                                                                                                            │
+ │                                                                                                              │
+ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+-- Acknowledgmements between servers 
+
+ ╓
+ ║ // server A                                                                                  
+ ║ io.serverSideEmit("ping", (err, responses) => console.log(responses[0]); // prints "pong" ); 
+ ║
+ ║ // server B                                                                                  
+ ║ io.on("ping", (cb) =>  cb("pong"); );                                                        
+ ╙                                                                                               
+
+ ┌
+ │ io.on("connection", (socket) => socket.data.username = "alice" ); // server A
+ │
+ │ const sockets = await io.fetchSockets(); // server B 
+ │ console.log(sockets[0].data.username); // "alice"                 
+ └                                                                    
+
+ ╓
+ ║ io.serverSideEmit("hello", "world");                             
+ ║
+ ║ And on the receiving side:                                       
+ ║ io.on("hello", (arg1) => console.log(arg1); // prints "world" ); 
+ ╙                                                                   
+
+
+▲
+█ -- The Socket instance 
+▼                         
+
+ ╓
+ ║ Socekt conn: underlying Engine.IO socket 
+ ╙                                           
+ ╒══════════════════════════════════════════════════════════╕
+ │ // called for each packet received                       │
+ │ socket.conn.on("packet", ({ type, data }) => { });       │
+ │                                                          │
+ │ // called for each packet sent                           │
+ │ socket.conn.on("packetCreate", ({ type, data }) => { }); │
+ │                                                          │
+ │ // called when the write buffer is drained               │
+ │ socket.conn.on("drain", () => { });                      │
+ │                                                          │
+ │ // called when the underlying connection is closed       │
+ │ socket.conn.on("close", (reason) => { });                │
+ ╘══════════════════════════════════════════════════════════╛
+
+ ╓
+ ║ A middleware 
+ ╙               
+ ╒══════════════════════════════════════════════════════════════════════════════════════╕
+ │ io.use(async (socket, next) => {                                                     │
+ │ try {                                                                                │
+ │ const user = await fetchUser(socket);                                                │
+ │ socket.user = user;                                                                  │
+ │ } catch (e) {                                                                        │
+ │ next(new Error("unknown user"));                                                     │
+ │ }                                                                                    │
+ │ });                                                                                  │
+ │ console.log(socket.user) // and then you can access attached (or anything else) user │
+ ╘══════════════════════════════════════════════════════════════════════════════════════╛
+
+ ╒══════════════════════════════════════════════════════════════════════╕
+ │ io.on("connection", (socket) => {                                    │
+ │ socket.use(([event, ...args], next) => {                             │
+ │ if (isUnauthorized(event)) {                                         │
+ │ return next(new Error("unauthorized event"));                        │
+ │ }                                                                    │
+ │ next();                                                              │
+ │ });                                                                  │
+ │                                                                      │
+ │ socket.on("error", (err) => {                                        │
+ │ if (err && err.message === "unauthorized event") socket.disconnect() │
+ │ });                                                                  │
+ │ });                                                                  │
+ ╘══════════════════════════════════════════════════════════════════════╛
+
+ +-------------------------------+
+ |                               |
+ | ▲                           ▲ |
+ | █ Connection state recovery █ |
+ | ▼                           ▼ |
+ |                               |
+ +-------------------------------+
+
+const io = new Server(httpServer, {
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,  // the backup duration of the sessions and the packets
+    skipMiddlewares: true,                    // whether to skip middlewares upon successful recovery
+  }
+});
+
+
+// NOTE: same logic for client, but with the event (connect)
+io.on("connection", (socket) => {
+  if (socket.recovered) {
+    // recovery was successful: socket.id, socket.rooms and socket.data were restored
+  } else {
+    // new or unrecoverable session
+  }
+});

@@ -1,0 +1,12 @@
+╓
+║ set:      localStorage.debug = 'socket.io-client:socket'                
+║ so now  any event received by the client will be printed to the console 
+╙                                                                          
+
+╓
+║ -- Events:                                                                                   
+║ The Socket instance emits these events                                                       
+║ connect,           connect_error,         disconnect,      reconnect_attempt,      reconnect 
+╙                                                                                               
+
+

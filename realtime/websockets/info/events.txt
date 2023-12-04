@@ -1,0 +1,149 @@
+ ┌
+ │ ▲                                                                               
+ │ █ in some cases you may want a more classic request-response API. In Socket.IO, 
+ │ █                   this feature is named acknowledgements.                                       
+ │ ▼                                                                               
+ │
+ └                                                                                  
+ ┌──────────────────┐
+    on the SERVER 
+ └──────────────────┘
+io.on("connection", (socket) => {  
+  socket.on("update item", (arg1, arg2, callback) => {
+    console.log(arg1); // 1
+    console.log(arg2); // { name: "updated" }
+    callback({ status: "ok" });
+  });
+});
+
+  ┌──────────────────┐
+      on the Client 
+  └──────────────────┘
+socket.emit("update item", "1", { name: "updated" }, (response) => {
+  console.log(response.status); // ok
+});
+
+-- TIMING OUT with acknowledgement
+ socket.timeout(5000).emit("my-event", (err, response) => {
+  if (err) { // the other side did not acknowledge the event in the given delay }
+  else console.log(response)
+ });
+
+
+
+ ┌─────────────────┐
+   Volatile Events 
+ └─────────────────┘
+ ▲                                                                                  ▲
+ █ Volatile events are events that will not be sent if the underlying connection    █
+ █ is not ready or reconnecting, (a bit like UDP, in terms of reliability).         █
+ █ -- A use case is to discard events when the client is not connected              █
+ █ (by default, the events are buffered until reconnection)                         █
+ █ -- Another  if you need to send the position of the characters in an online game █
+ █ (as only the latest values are useful or the last position of the character).    █
+ ▼                                                                                  ▼
+socket.volatile.emit("hello", "might or might not be received");
+
+
+┌────────────────────────────────┐
+   revoke and remove listeners 
+└────────────────────────────────┘
+const listener = (...args) => { console.log(args); }
+socket.on("details", listener);
+
+// and then later...  Removes the specified listener from the listener array for the details event
+socket.off("details", listener);   // or 
+
+// Removes all listeners, or those of the specified eventName.
+socket.removeAllListeners("details");  // for a specific event
+socket.removeAllListeners();           // for all events
+
+// Removes all catch-all listeners, or the given listener.
+socket.offAny(listener);
+socket.offAny();
+
+
+
+ ┌───────────────────────────────┐
+   Validation of event arguments 
+ └───────────────────────────────┘
+const Joi = require("joi");
+
+const userSchema = Joi.object({
+  username: Joi.string().max(30).required(),
+  email: Joi.string().email().required()
+});
+
+io.on("connection", (socket) => {
+  socket.on("create user", (payload, callback) => {
+    if (typeof callback !== "function") { // not an acknowledgement
+      return socket.disconnect();
+    }
+    const { error, value } = userSchema.validate(payload);
+    if (error) {
+      return callback({ status: "Bad Request", error });
+    }
+    // do something with the value, and then
+    callback({ status: "OK" });
+  });
+});
+
+ ┌────────────────────────────┐
+   Error handling of an Event 
+ └────────────────────────────┘
+ const errorHandlerWrapper = (handler) => { 
+   const handleError = (err) => { 
+      console.log("an error occurred", err)
+   }
+   return (...args) => {
+    try {
+      const ret = handler.apply(this, args);
+      if (ret && typeof ret.catch === "function") { // async handler 
+        ret.catch(handleError);
+      }
+    } catch (e) {                                   // sync handler 
+      handleError(e);
+    }
+  };
+ }
+
+// using this errorHandler on the server or the client side
+socket.on("hello", errorHandler(() => {
+  throw new Error("let's panic");
+}));
+
+
+
+┌────────┐
+  Rooms 
+└────────┘
+The "room" feature is implemented by what we call an Adapter. the default in-memory adapter, its responsible for:
+---    storing the relationships between the Socket instances and the rooms
+---    broadcasting events to all (or a subset of) clients
+...  Basically, it consists in two ES6 Maps:
+       sids: Map<SocketId, Set<Room>>
+       rooms: Map<Room, Set<SocketId>>
+--- Calling socket.join("the-room") will result in:
+      in the ̀sids Map, adding "the-room" to the Set identified by the socket ID
+      in the rooms Map, adding the socket ID in the Set identified by the string "the-room"
+--- A broadcast to all sockets (io.emit()) loops through the sids Map, and send the packet to all sockets
+--- A broadcast to a given room (io.to("room21").emit()) loops through the Set in the rooms Map,
+      and sends the packet to all matching sockets
+... You can access those objects with:    
+const rooms = io.of("/my-namespace").adapter.rooms;
+const sids = io.of("/my-namespace").adapter.sids;
+
+
+ ┌─────────────┐
+   Room Events 
+ └─────────────┘
+--- the underlying Adapter will emit the following events:
+ +---------------------------------+
+ | create-room (argument: room)    |
+ | delete-room (argument: room)    |
+ | join-room (argument: room, id)  |
+ | leave-room (argument: room, id) |
+ +---------------------------------+
+
+io.of("/").adapter.on("create-room", (room) => console.log(`room ${room} was created`) );
+io.of("/").adapter.on("join-room", (room, id) => console.log(`socket ${id} has joined room ${room}`) );

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>running webrtc without sip</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <video id="vid1" autoplay="true" muted="true"></video>
+    <video id="vid2" autoplay></video>
+
+    <button id="btn-start" onclick="start()">Start</button>
+    <button id="btn-call" onclick="call()">Call</button>
+    <button id="btn-hangup" onclick="hangup()">Hangup</button>
+
+    <xtextarea id="ta1"> </xtextarea>
+    <xtextarea id="ta2"> </xtextarea>
+  </body>
+
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script>
+    // JSON/XHR (XMLHttpRequest) is the signaling mechanism.
+
+    var pc1, pc2
+    var localStream
+    var sdpConstraints = {
+      mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true },
+    }
+
+    let strBtn = document.getElementById('btn-start')
+    let callBtn = document.getElementById('btn-call')
+    let hangBtn = document.getElementById('btn-hangup')
+
+    strBtn.disabled = false
+    callBtn.disabled = true
+    hangBtn.disabled = true
+
+    /*The JavaScript block contains the following function call to start
+      the media capture using Chrome browser's getUserMedia function*/
+    function start() {
+      strBtn.disabled = true
+      navigator.getUserMedia({ video: true, audio: true }, gotStream, function () {})
+    }
+
+    // attach an input stream to the local video section and enable the call button:
+    function gotStream(stream) {
+      attachMediaStream(stream)
+      localStream = stream /* ready to call the peer*/
+      callBtn.disabled = false
+    }
+
+    // function call to stream the video and audio content to the peer using RTCPeerConnection:
+    function call() {
+      callBtn.disabled = true
+      hangBtn.disabled = false
+      let videoTracks = localStream.getVideoTracks()
+      let audioTracks = localStream.getAudioTracks()
+
+      var servers = null
+      pc1 = new RTCPeerConnection(servers)
+      pc1.onicecandidate = iceCallback1
+      pc2 = new RTCPeerConnection(servers)
+      pc2.onicecandidate = iceCallback2
+
+      pc2.onaddstream = gotRemoteStream
+      pc1.addStream(localStream)
+      pc1.createOffer(gotDescription1)
+    }
+
+    /* getting SDP from offer by peer2 */
+    function gotDescription1(desc) {
+      pc1.setLocalDescription(desc)
+      pc2.setRemoteDescription(desc)
+      pc2.createAnswer(gotDescription2, null, sdpConstraints)
+    }
+
+    /* getting SDP from answer by peer1 */
+    function gotDescription2(desc) {
+      pc2.setLocalDescription(desc)
+      pc1.setRemoteDescription(desc)
+    }
+
+    function hangup() {
+      pc1.close()
+      pc2.close()
+      pc1 = null /* peer1 connection to server closed */
+      pc2 = null /* peer2 connection to server closed */
+      hangBtn.disabled = true
+      callBtn.disabled = false
+    }
+
+    function gotRemoteStream(e) {
+      vid2.src = webkitURL.createObjectURL(e.stream)
+    }
+
+    function iceCallback1(event) {
+      if (event.candidate) {
+        pc2.addIceCandidate(new RTCIceCandidate(event.candidate))
+      }
+    }
+
+    function iceCallback2(event) {
+      if (event.candidate) {
+        pc1.addIceCandidate(new RTCIceCandidate(event.candidate))
+      }
+    }
+  </script>
+</html>
