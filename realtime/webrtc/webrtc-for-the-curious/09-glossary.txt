@@ -1,0 +1,58 @@
+Glossary
+
+• ACK: Acknowledgment
+• AVP: Audio and Video profile
+• B-Frame: Bi-directional Predicted Frame. A partial picture, is a modification of previous and future pictures.
+• DCEP: Data Channel Establishment Protocol defined in RFC 8832
+• DeMux: Demultiplexer
+• DLSR: Delay since last sender report
+• DTLS: Datagram Transport Layer Security defined in RFC 6347
+• E2E: End-to-End
+• FEC: Forward Error Correction
+• FIR: Full INTRA-frame Request
+• G.711: A narrowband audio codec
+• GCC: Google Congestion Control defined in draft-ietf-rmcat-gcc-02
+• H.264: Advanced video coding for generic audiovisual services
+• H.265: Conformance specification for ITU-T H.265 high efficiency video coding
+• HEVC: High Efficiency Video Coding
+• HTTP: Hypertext Transfer Protocol
+• HTTPS: HTTP Over TLS, defined in RFC 2818
+• I-Frame: Intra-coded Frame. A complete picture, can be decoded without anything else.
+• ICE: Interactive Connectivity Establishment defined in RFC 8445
+• INIT: Initiate
+• IoT: Internet of Things
+• IPv4: Internet Protocol, Version 4
+• IPv6: Internet Protocol, Version 6
+• ITU-T: International Telecommunication Union Telecommunication Stan- dardization Sector
+• JSEP: JavaScript Session Establishment Protocol defined in RFC 8829
+• MCU: Multi-point Conferencing Unit
+• mDNS: Multicast DNS defined in RFC 6762
+• MITM: Man-In-The-Middle
+• MTU: Maximum Transmission Unit, the packet size
+• MUX: Multiplexing
+• NACK: Negative Acknowledgment
+• NADA: network-assisted dynamic adaptation define in draft-zhu-rmcat-nada-04
+• NAT: Network Address Translation defined in RFC 4787
+• Opus: A totally open, royalty-free, highly versatile audio codec
+• P-Frame: Predicted Frame. A partial picture, containing only changes from the previous picture.
+• P2P: Peer-to-Peer
+• PLI: Picture Loss Indication
+• PPID: Payload Protocol Identifier
+• REMB: Receiver Estimated Maximum Bitrate
+• RFC: Request for Comments
+• RMCAT: RTP Media Congestion Avoidance Techniques
+• RR: Receiver Report
+• RTCP: RTP Control Protocol defined in RFC 3550
+• RTP: Real-time transport protocol defined in RFC 3550
+• RTT: Round-Trip Time
+• SACK: Selective Acknowledgment
+• SCReAM: Self-Clocked Rate Adaptation for Multimedia defined in draft-johansson-rmcat-scream-cc-05
+• SCTP: Stream Control Transmission Protocol defined in RFC 4960
+• SDP: Session Description Protocol defined in RFC 8866
+• SFU: Selective Forwarding Unit
+• SR: Sender Report
+• SRTP: Secure Real-time Transport Protocol defined in RFC 3711
+• SSRC: Synchronization Source
+
+
+

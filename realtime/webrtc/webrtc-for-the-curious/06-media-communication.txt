@@ -1,0 +1,216 @@
+
+The WebRTC protocol is codec agnostic. The underlying transport supports everything, even things 
+  that don’t exist yet! However, the WebRTC Agent you are communicating with may not have the 
+  necessary tools to accept it. WebRTC is also designed to handle dynamic network conditions. 
+  During a call your bandwidth might increase, or decrease. Maybe you suddenly experience lots of 
+  packet loss. The protocol is designed to handle all of this. WebRTC responds to network conditions 
+  and tries to give you the best experience possible with the resources available.
+
+RTP (Real-time Transport Protocol) is the protocol that carries the media. It was designed to allow 
+  for real-time delivery of video. It does not stipulate any rules around latency or reliability, 
+  but gives you the tools to implement them. RTP gives you streams, so you can run multiple media 
+  feeds over one connection. It also gives you the timing and ordering information you need to feed 
+  a media pipeline.
+
+RTCP (RTP Control Protocol) is the protocol that communicates metadata about the call. The format 
+  is very flexible and allows you to add any metadata you want. This is used to communicate statistics 
+  about the call. It is also used to handle packet loss and to implement congestion control. It gives 
+  you the bi-directional communication necessary to respond to changing network conditions.
+
+
+Video is Complex
+  Transporting video isn’t easy. To store 30 minutes of uncompressed 720 8-bit video you need about 
+  110 GB. With those numbers, a 4-person conference call isn’t going to happen. We need a way to 
+  make it smaller, and the answer is video compression. That doesn’t come without downsides though.
+
+Lossy and Lossless compression
+  You can encode video to be lossless (no information is lost) or lossy (information may be lost). 
+  Because lossless encoding requires more data to be sent to a peer, making for a higher latency 
+  stream and more dropped packets, RTP typically uses lossy compression even though the video 
+  quality won’t be as good.
+
+Intra and Inter frame compression
+  Video compression comes in two types. The first is intra-frame. Intra-frame compression reduces 
+  the bits used to describe a single video frame. The same techniques are used to compress still 
+  pictures, like the JPEG compression method. The second type is inter-frame compression. Since 
+  video is made up of many pictures we look for ways to not send the same information twice.
+
+Inter-frame types:  You then have three frame types:
+• I-Frame - A complete picture, can be decoded without anything else.
+• P-Frame - A partial picture, containing only changes from the previous picture.
+• B-Frame - A partial picture, is a modification of previous and future pictures.
+
+Video is delicate
+  Video compression is incredibly stateful, making it difficult to transfer over the internet. What 
+  happens If you lose part of an I-Frame? How does a P-Frame know what to modify? As video compression 
+  gets more complex, this is becoming even more of a problem. Luckily RTP and RTCP have the solution
+
+
+Every RTP packet has the following structure:
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|V=2|P|X|   CC  |M|      PT   |     Sequence Number             |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                         Timestamp                             |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|          Synchronization Source (SSRC) identifier             |
++=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+|          Contributing Source (CSRC) identifiers               |
+|                           ....                                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                            Payload                            |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Version (V) Version is always 2
+
+Padding (P) Padding is a bool that controls if the payload has padding.
+  The last byte of the payload contains a count of how many padding bytes were added.
+  
+Extension (X) If set, the RTP header will have extensions.
+
+CSRC count (CC) The amount of CSRC identifiers that follow after the SSRC, and before the payload.
+
+Marker (M) The marker bit has no pre-set meaning, and can be used however the user likes.
+  In some cases it is set when a user is speaking. It is also commonly used to mark a keyframe.
+  
+Payload Type (PT) Payload Type is a unique identifier for what codec is being carried by this packet.
+  For WebRTC the Payload Type is dynamic. VP8 in one call may be different from another. The 
+  offerer in the call determines the mapping of Payload Types to codecs in the Session Description.
+
+Sequence Number Sequence Number is used for ordering packets in a stream.
+  Every time a packet is sent the Sequence Number is incremented by one.
+  
+RTP is designed to be useful over lossy networks. This gives the receiver a way
+  to detect when packets have been lost.
+  
+Timestamp The sampling instant for this packet. This is not a global clock, but how much time 
+  has passed in the media stream. Several RTP packets can have the same timestamp if they for 
+  example are all part of the same video frame.
+  
+Synchronization Source (SSRC) An SSRC is the unique identifier for this stream. This allows you 
+  to run multiple streams of media over a single RTP stream.
+  
+Contributing Source (CSRC) A list that communicates what SSRCes contributed to this packet. This is 
+  commonly used for talking indicators. Let’s say server side you combined multiple audio feeds 
+  into a single RTP stream. You could then use this field to say “Input stream A and C were 
+  talking at this moment”. Payload The actual payload data. Might end with the count of how many
+  padding bytes were added, if the padding flag is set.
+
+Payload The actual payload data. Might end with the count of how many
+  padding bytes were added, if the padding flag is set.
+
+
+
+
+RTCP
+Packet Format: Every RTCP packet has the following structure:
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|V=2|P|     RC   |     PT       |           length              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                         Payload                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Version (V) Version is always 2.
+
+Padding (P) Padding is a bool that controls if the payload has padding.
+  The last byte of the payload contains a count of how many padding bytes were added.
+
+Reception Report Count (RC) The number of reports in this packet. 
+  A single RTCP packet can contain multiple events.
+
+Packet Type (PT) Unique Identifier for what type of RTCP Packet this is. A WebRTC Agent doesn’t
+  need to support all these types, and support between Agents can be different. These are the 
+  ones you may commonly see though:
+• 192 - Full INTRA-frame Request (FIR)
+• 193 - Negative ACKnowledgements (NACK)
+• 200 - Sender Report
+• 201 - Receiver Report
+• 205 - Generic RTP Feedback
+• 206 - Payload Specific Feedback
+
+
+Full INTRA-frame Request (FIR) and Picture Loss Indication (PLI):
+  Both FIR and PLI messages serve a similar purpose. These messages request a full key frame from 
+  the sender. PLI is used when partial frames were given to the decoder, but it was unable to decode
+  them. This could happen because you had lots of packet loss, or maybe the decoder crashed.
+  According to RFC 5104, FIR shall not be used when packets or frames are lost. That is PLIs job. 
+  FIR requests a key frame for reasons other than packet loss - for example when a new member enters 
+  a video conference. They need a full key frame to start decoding video stream, the decoder will 
+  be discarding frames until key frame arrives.
+  It is a good idea for a receiver to request a full key frame right after connecting,
+  this minimizes the delay between connecting, and an image showing up on the user’s screen.
+
+Negative Acknowledgment
+  A NACK requests that a sender re-transmits a single RTP packet. This is usually caused by an RTP
+  packet getting lost, but could also happen because it is late. NACKs are much more bandwidth 
+  efficient than requesting that the whole frame get sent again. Since RTP breaks up packets into 
+  very small chunks, you are really just requesting one small missing piece. The receiver crafts an 
+  RTCP message with the SSRC and Sequence Number. If the sender does not have this
+  RTP packet available to re-send, it just ignores the message.
+
+
+Forward Error Correction
+  Also known as FEC. Another method of dealing with packet loss. FEC is when you send the same data 
+  multiple times, without it even being requested. This is done at the RTP level, or even lower 
+  with the codec. If the packet loss for a call is steady then FEC is a much lower latency solution
+  than NACK. The round trip time of having to request, and then re-transmit the
+  missing packet can be significant for NACKs.
+
+Identifying and Communicating Network Status
+RTP/RTCP has three different approaches to address this problem: 
+
+Receiver Reports / Sender Reports:
+  The first implementation is the pair of Receiver Reports and its complement, Sender Reports. These 
+  RTCP messages are defined in RFC 3550, and are responsible for communicating network status between 
+  endpoints. Receiver Reports focuses on communicating qualities about the network (including packet
+  loss, round-trip time, and jitter), and it pairs with other algorithms that are then responsible for 
+  estimating available bandwidth based on these reports. 
+  Sender and Receiver reports (SR and RR) together paint a picture of the network quality. They are 
+  sent on a schedule for each SSRC, and they are the inputs used when estimating available bandwidth. 
+  Those estimates are made by the sender after receiving the RR data, containing the following fields:
+
+• Fraction Lost - What percentage of packets have been lost since the last Receiver Report.
+• Cumulative Number of Packets Lost - How many packets have been lost during the entire call.
+• Extended Highest Sequence Number Received - What was the last
+  Sequence Number received, and how many times has it rolled over.
+• Interarrival Jitter - The rolling Jitter for the entire call.
+• Last Sender Report Timestamp - Last known time on sender, used for round-trip time calculation.
+
+SR and RR work together to compute round-trip time. The sender includes its local time, sendertime1
+  in SR. When the receiver gets an SR packet, it sends back RR. Among other things, the RR includes 
+  sendertime1 just received from the sender. There will be a delay between receiving the SR and 
+  sending the RR. Because of that, the RR also includes a “delay since last sender report” time - 
+  DLSR. The DLSR is used to adjust the round-trip time estimate later on in the process. Once the 
+  sender receives the RR it subtracts sendertime1 and DLSR from the current time sendertime2. This 
+  time delta is called round-trip propagation delay or round-trip time.
+  rtt = sendertime2 - sendertime1 - DLSR
+Round-trip time in plain English: - I send you a message with my clock’s current reading, say it 
+  is 4:20pm, 42 seconds and 420 milliseconds. - You send me this same timestamp back. - You also 
+  include the time elapsed from reading my message to sending the message back, say 5 milliseconds. 
+  - Once I receive the time back, I look at the clock again. - Now my clock says 4:20pm, 42 seconds
+  690 milliseconds. - It means that it took 265 milliseconds (690 - 420 - 5) to reach
+  you and return back to me. - Therefore, the round-trip time is 265 milliseconds.
+
+TMMBR, TMMBN, REMB and TWCC, paired with GCC
+  Google Congestion Control (GCC) The Google Congestion Control (GCC) algorithm 
+  (outlined in draft-ietf-rmcat-gcc-02) addresses the challenge of bandwidth estimation. It pairs with 
+  a variety of other protocols to facilitate the associated communication requirements. Consequently, 
+  it is well-suited to run on either the receiving side (when run with TMMBR/TMMBN or REMB) or on the 
+  sending side (when run with TWCC). To arrive at estimates for available bandwidth, GCC focuses on 
+  packet loss and fluctuations in frame arrival time as its two primary metrics. It runs these metrics
+  through two linked controllers: the loss-based controller and the delay-based controller.
+
+GCC’s first component, the loss-based controller, is simple:
+• If packet loss is above 10%, the bandwidth estimate is reduced.
+• If packet loss is between 2-10%, the bandwidth estimate stays the same.
+• If packet loss is below 2%, the bandwidth estimate is increased.
+
+Packet loss measurements are taken frequently. Depending on the paired communication protocol, packet 
+  loss may be either be explicitly communicated (as with TWCC) or inferred (as with TMMBR/TMMBN and REMB). 
+  These percentages are evaluated over time windows of around one second.
+
+
+
