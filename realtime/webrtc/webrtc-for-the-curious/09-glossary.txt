@@ -53,6 +53,19 @@ Glossary
 • SR: Sender Report
 • SRTP: Secure Real-time Transport Protocol defined in RFC 3711
 • SSRC: Synchronization Source
+• STUN: Session Traversal Utilities for NAT defined in RFC 8489
+• TCP: Transmission Control Protocol
+• TLS: The Transport Layer Security defined in RFC 8446
+• TMMBN: Temporary Maximum Media Stream Bit Rate Notification
+• TMMBR: Temporary Maximum Media Stream Bit Rate Request
+• TSN: Transmission Sequence Number
+• TURN: Traversal Using Relays around NAT defined in RFC 8656
+• TWCC: Transport Wide Congestion Control
+• UDP: User Datagram Protocol
+• VP8, VP9: Highly-efficient video compression technologies (video “codecs”)
+  developed by the WebM Project. Anyone may use these codecs royalty-free.
+• WebM: An open media file format designed for the web.
+• WebRTC: Web Real-Time Communications. W3C WebRTC 1.0: Real-Time Communication Between Browsers
 
 
 
