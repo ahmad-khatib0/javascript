@@ -1,0 +1,17 @@
+---
+version: '3.3'
+services:
+  #
+  # janus-gateway
+  #
+  janus-gateway:
+    image: 'sucwangsr/janus-webrtc-gateway-docker:1.2.3-slim'
+    #command: ["/usr/local/bin/janus", "-F", "/usr/local/etc/janus"] # only start janus
+    command: ['sh', '-c', 'nginx && /usr/local/bin/janus -F /usr/local/etc/janus'] # if want to start nginx (port 8086)
+    network_mode: 'host'
+
+    volumes:
+      - './conf/janus.transport.websockets.jcfg:/usr/local/etc/janus/janus.transport.websockets.jcfg' # open adminapi config
+      - './conf/janus.jcfg:/usr/local/etc/janus/janus.jcfg'
+      - './conf/janus.eventhandler.wsevh.jcfg:/usr/local/etc/janus/janus.eventhandler.wsevh.jcfg'
+    restart: always
