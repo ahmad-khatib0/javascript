@@ -1,0 +1,16 @@
+version: "3.8"
+  
+services:
+  nextjs:
+    build: ./
+    ports:
+      - "3000:3000" 
+    volumes:
+      - ./lib:/app/lib
+      - ./pages:/app/pages
+      - ./posts:/app/posts
+      - ./public:/app/public
+      - ./styles:/app/styles
+      - ./components:/app/components
+      - /app/node_modules
+

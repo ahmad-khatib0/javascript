@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue Basics</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://unpkg.com/vue@next" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>Vue Dynamic Styling</h1>
+    </header>
+    <section id="styling">
+      <!-- <div class="demo" @click="boxSelected('A')" :style="{borderColor: boxASelected ? 'red' : '#ccc' }" ></div> -->
+      <!-- <div class="demo" @click="boxSelected('A')" :class="boxSelected? 'demo active' : demo" ></div> -->
+      <!-- <div class="demo" @click="boxSelected('A')" class="demo" :class="{active: boxASelected}" ></div> -->
+      <div class="demo" @click="boxSelected('A')" class="demo" :class="[ 'demo' ,  {active: boxASelected}]" ></div>
+      <!-- <div class="demo" @click="boxSelected('A')" class="demo" :class="boxAClasses" ></div> -->
+      <div class="demo" @click="boxSelected('B')"  class="demo" :class="boxBClasses"></div>
+      <div class="demo" @click="boxSelected('C')" class="demo" :class="boxCClasses"></div>
+    </section>
+  </body>
+</html>
